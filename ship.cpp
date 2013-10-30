@@ -17,10 +17,12 @@ Ship::Ship()
   rep_criminal = 0;
 
   trade_volume = 0;
-  trade_accel = 0;
+  rep_trade_accel = 0;
 
+/*
   crew_amount = 0;
   crew_morale = 0;
+*/
 }
 
 void Ship::init()

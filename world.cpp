@@ -38,7 +38,7 @@ void World::advance_days(int amount)
   for (int i = 0; i < PLANETS.size(); i++) {
     for (int n = 0; n < NUM_GOODS; n++) {
       total_supply[n] += PLANETS[i].supply[n];
-      total_demand[n] += PLANETS[i].supply[n];
+      total_demand[n] += PLANETS[i].demand[n];
     }
   }
     
@@ -87,9 +87,11 @@ void World::advance_days(int amount)
 void World::update_prices(int total_supply[NUM_GOODS],
                           int total_demand[NUM_GOODS])
 {
+  int maxdiff = PLANETS.size() * 10;
   for (int i = 0; i < NUM_GOODS; i++) {
-    int diff = total_supply[i] - total_demand[i];
-    int unit = (GOOD_DATA[i]->high_value - GOOD_DATA[i]->low_value) / 15;
+    int range = GOOD_DATA[i]->high_value - GOOD_DATA[i]->low_value;
+    int diff = total_demand[i] - total_supply[i];
+    int unit = range / maxdiff;
     if (unit < 1) {
       unit = 1;
     }
@@ -97,9 +99,15 @@ void World::update_prices(int total_supply[NUM_GOODS],
     if (diff < 0) {
       if (diff < curr) {
         price_adjustment[i] -= rng(0, unit);
+        if (price_adjustment[i] < 0 - range / 2) {
+          price_adjustment[i] = 0 - range / 2;
+        }
       }
     } else if (diff > curr) {
       price_adjustment[i] += rng(0, unit);
+      if (price_adjustment[i] > range / 2) {
+        price_adjustment[i] = range / 2;
+      }
     }
   }
 }

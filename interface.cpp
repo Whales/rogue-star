@@ -318,7 +318,23 @@ void trade_screen()
     i_trade.draw(&w_trade);
     long ch = getch();
 
-    if (ch == '+' || ch == KEY_RIGHT || ch == 'l' || ch == 'L') {
+    int max_buyable = 0;
+    if (buying) {
+      max_buyable = (PLR.cash + profit) / market->buy_price( Good_id(sel) );
+      int max_vol = (PLR.cargo_remaining() - cargo_used) /
+                    GOOD_DATA[sel]->volume;
+      if (max_vol < max_buyable) {
+        max_buyable = max_vol;
+      }
+    }
+
+    if (ch == 'm' || ch == 'M') {
+      if (buying) {
+        buy_amount[sel] = max_buyable;
+      } else {
+        sell_amount[sel] = PLR.cargo.amount[sel];
+      }
+    } else if (ch == '+' || ch == KEY_RIGHT || ch == 'l' || ch == 'L') {
       if (buying) {
         buy_amount[sel]++;
       } else if (PLR.cargo.amount[sel] > sell_amount[sel]) {
@@ -326,8 +342,10 @@ void trade_screen()
       }
     } else if (ch == '-' || ch == KEY_LEFT || ch == 'h' || ch == 'H') {
       if (buying) {
-        buy_amount[sel]--;
-      } else {
+        if (buy_amount[sel] > 0) {
+          buy_amount[sel]--;
+        }
+      } else if (sell_amount[sel] > 0) {
         sell_amount[sel]--;
       }
     } else if (ch == '\n') {

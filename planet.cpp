@@ -544,7 +544,7 @@ void Planet::randomize()
 std::string random_name()
 {
   std::string ret;
-  switch (rng(1, 15)) {
+  switch (rng(1, 25)) {
     case  1:  ret = "Ar";   break;
     case  2:  ret = "Bes";  break;
     case  3:  ret = "Cor";  break;
@@ -560,8 +560,18 @@ std::string random_name()
     case 13:  ret = "Se";   break;
     case 14:  ret = "Ta";   break;
     case 15:  ret = "Van";  break;
+    case 16:  ret = "Jin";  break;
+    case 17:  ret = "Sol";  break;
+    case 18:  ret = "Dor";  break;
+    case 19:  ret = "Sin";  break;
+    case 20:  ret = "Al";   break;
+    case 21:  ret = "Ro";   break;
+    case 22:  ret = "Ska";  break;
+    case 23:  ret = "Ti";   break;
+    case 24:  ret = "Gor";  break;
+    case 25:  ret = "War";  break;
   }
-  switch (rng(1, 15)) {
+  switch (rng(1, 20)) {
     case  1:  ret += "go";  break;
     case  2:  ret += "pa";  break;
     case  3:  ret += "ki";  break;
@@ -571,14 +581,19 @@ std::string random_name()
     case  7:  ret += "pi";  break;
     case  8:  ret += "lo";  break;
     case  9:  ret += "mi";  break;
-    case 10:  ret += "u";  break;
-    case 11:
-    case 12:
-    case 13:
-    case 14:
-    case 15: break;
+    case 10:  ret += "u";   break;
+    case 11:  ret += "ba";  break;
+    case 12:  ret += "an";  break;
+    case 13:  ret += "be";  break;
+    case 14:  ret += "va";  break;
+    case 15:  ret += "go";  break;
+    case 16:
+    case 17:
+    case 18:
+    case 19:
+    case 20:  break;
   }
-  switch (rng(1, 15)) {
+  switch (rng(1, 25)) {
     case  1:  ret += "nee";   break;
     case  2:  ret += "bah";   break;
     case  3:  ret += "cant";  break;
@@ -594,6 +609,16 @@ std::string random_name()
     case 13:  ret += "'ja";   break;
     case 14:  ret += "kis";   break;
     case 15:  ret += "t";     break;
+    case 16:  ret += "ten";   break;
+    case 17:  ret += "thro";  break;
+    case 18:  ret += "gol";   break;
+    case 19:  ret += "terre"; break;
+    case 20:  ret += "kos";   break;
+    case 21:  ret += "dros";  break;
+    case 22:  ret += "tar";   break;
+    case 23:  ret += "men";   break;
+    case 24:  ret += "chre";  break;
+    case 25:  ret += "ta";    break;
   }
 
   return ret;

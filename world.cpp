@@ -1,4 +1,5 @@
 #include <sstream>
+#include <stdlib.h>
 #include "world.h"
 #include "window.h"
 #include "globals.h"
@@ -11,6 +12,9 @@ World::World()
 {
   day = 1;
   news.clear();
+  for (int i = 0; i < NUM_GOODS; i++) {
+    price_adjustment[i] = 0;
+  }
 }
 
 std::string World::get_date_str()
@@ -26,9 +30,22 @@ void World::advance_days(int amount)
   if (amount == 0) {
     return;
   }
+  int total_supply[NUM_GOODS], total_demand[NUM_GOODS];
+  for (int i = 0; i < NUM_GOODS; i++) {
+    total_supply[i] = 0;
+    total_demand[i] = 0;
+  }
+  for (int i = 0; i < PLANETS.size(); i++) {
+    for (int n = 0; n < NUM_GOODS; n++) {
+      total_supply[n] += PLANETS[i].supply[n];
+      total_demand[n] += PLANETS[i].supply[n];
+    }
+  }
+    
   day += amount;
 // Make minimum debt payments
   for (int i = 0; i < amount; i++) {
+    update_prices(total_supply, total_demand);
     PLR.update_rep();
     if (PLR.debt > 0) {
 // TODO: Don't hard-code minimum payment.
@@ -63,6 +80,23 @@ void World::advance_days(int amount)
       if (one_in(4) && one_in(EVENTS[n]->frequency)) {
         add_event(EVENTS[n]);
       }
+    }
+  }
+}
+
+void World::update_prices(int total_supply[NUM_GOODS],
+                          int total_demand[NUM_GOODS])
+{
+  for (int i = 0; i < NUM_GOODS; i++) {
+    int diff = total_supply[i] - total_demand[i];
+    int unit = (GOOD_DATA[i]->high_value - GOOD_DATA[i]->low_value) / 10;
+    int curr = price_adjustment[i] / unit;
+    if (diff < 0) {
+      if (diff < curr) {
+        price_adjustment[i] -= rng(0, abs(diff));
+      }
+    } else if (diff > curr) {
+      price_adjustment[i] += rng(0, diff);
     }
   }
 }

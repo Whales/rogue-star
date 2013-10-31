@@ -89,14 +89,17 @@ void World::update_prices(int total_supply[NUM_GOODS],
 {
   for (int i = 0; i < NUM_GOODS; i++) {
     int diff = total_supply[i] - total_demand[i];
-    int unit = (GOOD_DATA[i]->high_value - GOOD_DATA[i]->low_value) / 10;
+    int unit = (GOOD_DATA[i]->high_value - GOOD_DATA[i]->low_value) / 15;
+    if (unit < 1) {
+      unit = 1;
+    }
     int curr = price_adjustment[i] / unit;
     if (diff < 0) {
       if (diff < curr) {
-        price_adjustment[i] -= rng(0, abs(diff));
+        price_adjustment[i] -= rng(0, unit);
       }
     } else if (diff > curr) {
-      price_adjustment[i] += rng(0, diff);
+      price_adjustment[i] += rng(0, unit);
     }
   }
 }

@@ -43,7 +43,9 @@ Planet::Planet()
 int Planet::buy_price(Good_id good)
 {
   Good_datum *info = GOOD_DATA[good];
-  int range = info->high_value - info->low_value;
+  int low  = info->low_value,
+      high = info->high_value + WORLD.price_adjustment[good];
+  int range = high - low;
   int current_supply = supply[good], current_demand = demand[good];
   int static_adj = 0, percent_adj = 100;
 
@@ -69,7 +71,7 @@ int Planet::buy_price(Good_id good)
     return -1;
   }
         
-  int ret = info->low_value + (range * (9 - current_supply)) / 9;
+  int ret = low + (range * (9 - current_supply)) / 9;
   if (current_demand > 0) {
     ret += (range * current_demand) / 36;
   }
@@ -83,7 +85,9 @@ int Planet::buy_price(Good_id good)
 int Planet::sell_price(Good_id good)
 {
   Good_datum *info = GOOD_DATA[good];
-  int range = info->high_value - info->low_value;
+  int low  = info->low_value,
+      high = info->high_value + WORLD.price_adjustment[good];
+  int range = high - low;
   int current_supply = supply[good], current_demand = demand[good];
   int static_adj = 0, percent_adj = 100;
   for (int i = 0; i < WORLD.current_events.size(); i++) {
@@ -106,12 +110,12 @@ int Planet::sell_price(Good_id good)
   if (current_demand <= 0) {
     return -1;
   }
-  int ret = info->low_value + (range * current_demand) / 9;
+  int ret = low + (range * current_demand) / 9;
   if (current_supply > 0) {
     ret -= (range * current_supply) / 24;
   }
-  if (ret > buy_price(good) && buy_price(good) > 0) {
-    ret = buy_price(good);
+  if (ret >= buy_price(good) && buy_price(good) > 0) {
+    ret = buy_price(good) - 1;
   }
   if (ret < 0) {
     return -1;

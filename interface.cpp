@@ -69,7 +69,6 @@ void ship_screen()
 
   Window w_ship(0, 0, 80, 24);
 
-  debugmsg("trade_rep_accel %d", PLR.rep_trade_accel);
   std::vector<std::string> manifest_list, parts_list, manifest_amount,
                            manifest_cost;
 
@@ -98,8 +97,16 @@ void ship_screen()
   i_ship.set_data("num_fuel", PLR.fuel_remaining());
   i_ship.set_data("num_maxfuel", PLR.fuel_cap());
   i_ship.set_data("num_speed", 100 / PLR.speed());
-  i_ship.set_data("num_mass", PLR.total_mass());
-  i_ship.set_data("num_mass_limit", PLR.mass_breakpoint());
+  int mass = PLR.total_mass(), breakpoint = PLR.mass_breakpoint();
+  i_ship.set_data("num_mass", mass);
+  i_ship.set_data("num_mass_limit", breakpoint);
+
+  if (PLR.total_mass() > PLR.mass_breakpoint()) {
+    std::stringstream overweight_text;
+    overweight_text << "<c=red>Fuel efficiency and speed are at " <<
+                       int(100 / (1 + mass / breakpoint)) << "%%%%";
+    i_ship.set_data("text_overweight", overweight_text.str());
+  }
 
   std::string rep_trader   = "<c=green>",
               rep_combat   = "<c=ltblue>",

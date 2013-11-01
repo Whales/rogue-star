@@ -268,8 +268,8 @@ void trade_screen()
 /* TODO: Allow for different modes of transport, with different costs
  *       e.g. "Planetary Landing" "Drop Ships" "Space Elevator" "Hire Crew"
  */
-      transport += sell_amount[i]  * GOOD_DATA[i]->mass;
-      transport += buy_amount[i]   * GOOD_DATA[i]->mass;
+      transport  += sell_amount[i] * GOOD_DATA[i]->mass;
+      transport  += buy_amount[i]  * GOOD_DATA[i]->mass;
       cargo_used += buy_amount[i]  * GOOD_DATA[i]->volume;
       cargo_used -= sell_amount[i] * GOOD_DATA[i]->volume;
     }
@@ -410,6 +410,7 @@ void dock_screen()
   int fuel_units = 0;
   i_dock.ref_data("num_fuel_buy_units", &fuel_units);
   i_dock.ref_data("num_plr_cash", &(PLR.cash));
+  i_dock.ref_data("num_plr_cash_2", &(PLR.cash));
 
 // Parts to repair
   std::vector<std::string> parts_repair_names, parts_repair_dmg,
@@ -427,6 +428,13 @@ void dock_screen()
   i_dock.set_data("num_price_repair_all", price_repair_all);
 
   i_dock.select("list_parts_to_repair");
+
+  int num_buying[NUM_SP];
+  for (int i = 0; i < NUM_SP; i++) {
+    num_buying[i] = 0;
+  }
+  int parts_price = 0;
+  i_dock.ref_data("num_parts_price", &parts_price);
 
   do {
     Good_id fuel_type = PLR.fuel_type();
@@ -484,6 +492,14 @@ void dock_screen()
 
     i_dock.set_data("num_price_fill", fuel_fill_price);
     i_dock.set_data("num_price_fuel_units", fuel_unit_price);
+
+// Populate number of parts buying list
+    i_dock.clear_data("list_part_amount");
+    for (int i = 1; i < NUM_SP; i++) {
+      std::stringstream partnum_text;
+      partnum_text << num_buying[i];
+      i_dock.add_data("list_part_amount", partnum_text.str() );
+    }
 
     i_dock.draw(&w_dock);
 
@@ -545,6 +561,25 @@ void dock_screen()
         i_dock.set_data("text_parts_instructions",
                         "Press <c=magenta>/<c=/> to buy parts.");
       }
+    } else if ((ch == 'l' || ch == 'L' || ch == '+' || ch == '=' ||
+                ch == KEY_RIGHT) &&
+               buying_parts && i_dock.selected()->name == "list_parts_to_buy") {
+// We add one since the 0th entry in the interface list is really the 1st
+// part in the database.
+      int buy_index = i_dock.get_int("list_parts_to_buy") + 1;
+      num_buying[buy_index]++;
+      parts_price += PARTS[buy_index]->cost;
+      i_dock.set_data("num_cash_after_purchase", PLR.cash - parts_price);
+    } else if ((ch == 'h' || ch == 'H' || ch == '-' || ch == KEY_LEFT) &&
+               buying_parts && i_dock.selected()->name == "list_parts_to_buy") {
+// We add one since the 0th entry in the interface list is really the 1st
+// part in the database.
+      int buy_index = i_dock.get_int("list_parts_to_buy") + 1;
+      if (num_buying[buy_index] > 0) {
+        num_buying[buy_index]--;
+        parts_price -= PARTS[buy_index]->cost;
+        i_dock.set_data("num_cash_after_purchase", PLR.cash - parts_price);
+      }
     } else if (ch == '\n') {
       if (i_dock.selected()->name == "list_parts_to_repair") {
         if (parts_repair_indices.empty()) {
@@ -569,15 +604,18 @@ void dock_screen()
         }
       } else { // We're on the parts buy/sell list!
         if (buying_parts) {
-// We add one since the 0th entry in the interface list is really the 1st
-// part in the database.
-          int buy_index = i_dock.get_int("list_parts_to_buy") + 1;
-          if (PLR.cash < PARTS[buy_index]->cost) {
+          if (PLR.cash < parts_price) {
             popup("Can't afford that!  You: $%d, price: $%d", PLR.cash,
-                  PARTS[buy_index]->cost);
+                  parts_price);
           } else {
-            PLR.cash -= PARTS[buy_index]->cost;
-            PLR.add_part( PARTS[buy_index] );
+            PLR.cash -= parts_price;
+            for (int i = 1; i < NUM_SP; i++) {
+              for (int n = 0; n < num_buying[i]; n++) {
+                PLR.add_part( PARTS[i] );
+              }
+              num_buying[i] = 0;
+            }
+            parts_price = 0;
           }
         } else { // We're SELLING parts.
 // No need to add 1 here.

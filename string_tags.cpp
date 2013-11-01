@@ -40,7 +40,7 @@ std::string get_tagcolor(const std::string &tag)
   if (tag == "planet") {
     return "<c=brown>";
   } else if (tag == "acronym") {
-    return "<c=ltred>";
+    return "<c=white>";
   } else if (tag.substr(0, 7) == "company") {
     return "<c=cyan>";
   } else if (tag.substr(0, 7) == "product") {

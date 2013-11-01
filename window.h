@@ -52,6 +52,7 @@ int  menu    (const char *mes, ...);
 
 void popup           (const char *mes, ...);
 void popup_fullscreen(const char *mes, ...);
+void popup_scrollable(const char *mes, ...);
 
 class Window
 {

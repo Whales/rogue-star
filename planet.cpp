@@ -157,10 +157,10 @@ void Planet::randomize()
       supply[GOOD_RAWFUEL]      +=  2;
       supply[GOOD_URANIUM]      +=  1;
       supply[GOOD_ORE]          -=  1;
-      supply[GOOD_WATER]        -=  3;
+      supply[GOOD_WATER]        -=  4;
       supply[GOOD_FERTILIZER]   -=  2;
       supply[GOOD_CROPS]        -=  3;
-      demand[GOOD_WATER]        +=  3;
+      demand[GOOD_WATER]        +=  4;
       demand[GOOD_FOODS]        +=  1;
       demand[GOOD_EDIBLES]      +=  2;
       sym_col = c_yellow;

@@ -51,6 +51,54 @@ void main_screen()
         dock_screen();
         break;
 
+      case '?':
+        popup_scrollable("\
+Welcome to Rogue Star!  You can close this help screen, and any other popups, \
+by pressing Enter or Esc.  You can scroll this text with the \
+<c=magenta>up<c=/>/<c=magenta>down<c=/> keys, or <c=magenta>J<c=/>/\
+<c=magenta>K<c=/> (i.e. vikeys).  You can scroll down a page with \
+<c=magenta>Spacebar<c=/>, and scroll up a page with <c=magenta>B<c=/>.  \
+Generally speaking, key commands are NOT case-sensitive.\n\
+\n\
+Rogue Star is a game of space trading.  You are the proud new owner of a \
+freighter capable of traveling much faster than the speed of light, via \
+SCIENCE.  Your objective is to make a fortune by buying goods at low prices, \
+transporting them to another planet, and selling them at higher prices.\n\
+\n\
+This screen is the main menu.  On the right, news is listed, which may impact \
+the prices of various goods.  Each news item is prefaced by the date range it \
+applies to.\n\
+A quick note about dates: since we're in outer space, 'year' and 'day' aren't \
+really meaningful.  The Galactic Consortium of Dates and Times has set the \
+standard 'day' to 25 hours, and the standard 'year' to 100 days.\n\
+\n\
+From this screen, you can access several other screens which will let you get \
+things done:\n\
+Press <c=magenta>S<c=/> to view your <c=magenta>Ship<c=/>.  This will list \
+your current manifest (i.e. what cargo you are carrying), your location, the \
+modules that are currently a part of your ship, your remaining fuel, and \
+current speed and mass.  It also displays what your reputation is.\n\
+Press <c=magenta>M<c=/> to view the <c=magenta>Starmap<c=/>.  This will allow \
+you to view information about other planets, and to travel to them if you have \
+enough fuel.\n\
+Press <c=magenta>T<c=/> to <c=magenta>Trade<c=/>.  This is where you can buy \
+and sell various goods.\n\
+Press <c=magenta>D<c=/> to <c=magenta>Dock<c=/> your ship.  This will allow \
+you to refuel, repair any damage, and sell or buy parts.\n\
+Press <c=magenta>Q<c=/> to <c=magenta>Quit<c=/>.  Except don't!\n\
+\n\
+Remember, once you get to any other screen you can press <c=magenta>?<c=/> to \
+view specific help for that screen.\n\
+Press <c=magenta>Enter<c=/> or <c=magenta>Esc<c=/> to close this help.");
+      break;
+
+      case 'q':
+      case 'Q':
+        if (query_yn("Really quit (without saving)?")) {
+          return;
+        }
+        break;
+
       default:
         i_menu.handle_keypress(ch);
         break;
@@ -147,7 +195,67 @@ void ship_screen()
   do {
     i_ship.draw(&w_ship);
     long ch = getch();
-    if (ch == 'q' || ch == 'Q' || ch == KEY_ESC) {
+    if (ch == '?') {
+      popup_scrollable("\
+This is the <c=magenta>Ship<c=/> screen.  This screen is not interactive; it \
+is only there to provide information.  You can return to the main menu by \
+pressing <c=magenta>q<c=/> or <c=magenta>Esc<c=/>.\n\
+\n\
+You can see the following information here:\n\
+<c=brown>Location<c=/> is the name of the planet (if any) whose orbit you are \
+in.\n\
+<c=ltblue>Engine<c=/>   is the name of the engine your ship currently uses.\n\
+<c=ltred>Fuel<c=/>     is how much you you have left (and your maximum fuel \
+capacity).\n\
+<c=ltgreen>Speed<c=/>    is how long it takes you to travel a single parsec.\n\
+<c=cyan>Mass<c=/>     is the combined mass of your ship and its cargo, if \
+any.\n\
+<c=ltcyan>Limit<c=/>    is the maximum mass your engine is designed to \
+handle.  Be careful!  You can go over this mass limit, but it will severely \
+reduce your speed and fuel efficiency.\n\
+<c=green>Manifest<c=/> is the list of cargo you're currently carrying.  This \
+includes the amount you paid for this cargo; this helps you determine how much \
+of a profit you will make when you sell it.  If you bought a certain type of \
+good at two or more different prices, the Cost will be averaged.\n\
+<c=ltblue>Equipment<c=/> is the list of parts that make up your ship.\n\
+\n\
+<c=green>Trader   Reputation<c=/> is your fame as a trader.\n\
+  <c=yellow>Positive Implications:<c=/>\n\
+    -You are more likely to receive special transport missions.\n\
+    -You are more likely to make strong contacts in trade depots.\n\
+  <c=ltred>Negative Implications:<c=/>\n\
+    -You are more likely to be targeted by pirates.\n\
+\n\
+<c=ltblue>Combat  Reputation<c=/> is your reputation for being deadly in \
+battle.\n\
+  <c=yellow>Positive Implications:<c=/>\n\
+    -You are less likely to be attacked.\n\
+    -Enemies you attack are more likely to surrender.\n\
+    -You are more likely to receive special takedown missions.\n\
+  <c=ltred>Negative Implications:<c=/>\n\
+    -If you are being pursued, your foe is more likely to bring a large \
+fleet.\n\
+    -Other spacefighters may seek you out, seeking fame as your killer.\n\
+\n\
+<c=ltred>Criminal Reputation<c=/> is your notoriety in the criminal world.\n\
+  <c=yellow>Positive Implications:<c=/>\n\
+    -Criminal elements such as the black market, hackers, and hit men will \
+only\n\
+     associate with you if you have some criminal reputation.\n\
+    -You are more likely to receive special criminal missions.\n\
+    -Pirates and others who are usually foes may instead seek to trade.\n\
+  <c=ltred>Negative Implications:<c=/>\n\
+    -Police and bounty hunters will hunt you down more and more persistantly.\n\
+    -Your licenses, if any, will be revoked.\n\
+    -You face the danger of capture every time you visit public locations \
+such\n\
+     as public offices or docks.\n\
+\n\
+You can press <c=magenta>Q<c=/> or <c=magenta>Esc<c=/> to return to the main \
+menu.\n\
+\n\
+Press <c=magenta>Enter<c=/> or <c=magenta>Esc<c=/> to close this help.");
+    } else if (ch == 'q' || ch == 'Q' || ch == KEY_ESC) {
       return;
     } else {
       i_ship.handle_action(ch);
@@ -329,7 +437,53 @@ void trade_screen()
     }
     max_buyable += buy_amount[sel];
 
-    if (ch == 'm' || ch == 'M') {
+    if (ch == '?') {
+      popup_scrollable("\
+This is the trade depot, where you can buy or sell cargo.  On the left is a \
+list of all available goods and their price; on the right is a list of all \
+available goods, the amount you are carry, and their price.  You can press \
+<c=magenta>TAB<c=/> to switch between the two lists.  Press \
+<c=magenta>Up<c=/>/<c=magenta>Down<c=/> or <c=magenta>J<c=/>/<c=magenta>K<c=/> \
+to scroll through the lists.\n\
+You can press <c=magenta>Right<c=/>, <c=magenta>L<c=/> or <c=magenta>+=<c=/> \
+to increase the amount you are buying/selling, and <c=magenta>Left<c=/>, \
+<c=magenta>H<c=/> or <c=magenta>-<c=/> to decrease.  You can also press \
+<c=magenta>M<c=/> to sell as many as your carrying / buy as many as you can \
+afford and have storage space for.\n\
+\n\
+Both lists have a price column.  You'll notice that the sell price for each \
+good is different from the buy price, and always lower.  Some goods have \
+<c=dkgray>N/A<c=/> as their price; these cannot be bought or sold here at \
+all.\n\
+Prices in the <c=ltblue>Buying List<c=/> which are displayed in <c=dkgray>dark \
+gray<c=/> cannot be sold for a higher price.  Thus, there is little point in \
+buying these products as you'll always be selling at a loss.\n\
+Prices which are displayed in <c=ltgreen>green<c=/> are the best prices on any \
+planet.  In the <c=ltblue>Buying List<c=/> this means the price is the lowest \
+currently available; in the <c=ltblue>Selling List<c=/> this means the price \
+is the highest currently available.\n\
+\n\
+At the bottom of the screen you can see your <c=ltgreen>Earnings<c=/>, \
+<c=ltred>Cost<c=/>, and <c=ltred>Transport Costs<c=/>.  In addition to the \
+price of goods bought, you will have to pay to have goods transported to and \
+from the surface of the planet.  This price is affected by the mass of the \
+good being bought or sold, and the <c=brown>gravity<c=/> of the planet.\n\
+\n\
+At the bottom center, you can see the <c=cyan>Prices<c=/> of the currently \
+selected good.  This includes the local price, the lowest price you can buy \
+it at on any planet, and the highest price you can sell it at on any planet.\n\
+\n\
+At the bottom right, You can see your <c=ltgreen>Current Cash<c=/> and \
+available <c=ltblue>Cargo Space<c=/>.  You'll also see the cash/cargo space \
+you'll have after the trade goes through.  If either is negative, then you \
+won't be able to make this purchase!\n\
+\n\
+You can press <c=magenta>Q<c=/> or <c=magenta>Esc<c=/> to return to the main \
+menu.\n\
+\n\
+Press <c=magenta>Enter<c=/> or <c=magenta>Esc<c=/> to close this help.");
+
+    } else if (ch == 'm' || ch == 'M') {
       if (buying) {
         buy_amount[sel] = max_buyable;
       } else {
@@ -337,8 +491,11 @@ void trade_screen()
       }
     } else if (ch == '+' || ch == KEY_RIGHT || ch == 'l' || ch == 'L') {
       if (buying) {
-        buy_amount[sel]++;
-      } else if (PLR.cargo.amount[sel] > sell_amount[sel]) {
+        if (market->buy_price( Good_id(sel) ) > 0) {
+          buy_amount[sel]++;
+        }
+      } else if (PLR.cargo.amount[sel] > sell_amount[sel] &&
+                 market->sell_price( Good_id(sel) ) > 0) {
         sell_amount[sel]++;
       }
     } else if (ch == '-' || ch == KEY_LEFT || ch == 'h' || ch == 'H') {
@@ -505,7 +662,53 @@ void dock_screen()
 
     long ch = getch();
 
-    if (ch == 'f' || ch == 'F') { // Fill up
+    if (ch == '?') {
+      popup_scrollable("\
+This is the dock screen.  This is where you can maintain your starship.\n\
+On the left you can see your <c=green>Fuel gauge<c=/>.  Fuel is required to \
+travel from one planet to another, so you will need to visit the dock \
+frequently to fill up!  This section contains a visual gauge, hard numbers on \
+your remaining fuel & fuel capactiy, the type of fuel your current engine \
+uses, and the price per unit of fuel.  This price is affected by the related \
+good's price on the planet you're visiting, so it may be wise to travel to a \
+planet where fuel is cheap in order to fill up!\n\
+\n\
+Press <c=magenta>F<c=/> to fill your fuel tanks to capacity.  If you cannot \
+afford to do so, or do not want to, you can press \
+<c=magenta>+<c=/>/<c=magenta>-<c=/> to increase/decrease the amount of fuel \
+you want to buy, then press <c=magenta>B<c=/> to buy.\n\
+\n\
+In the center of the screen, your damaged parts are listed.  Parts which are \
+in perfect condition will not be included.  Press \
+<c=magenta>Up<c=/>/<c=magenta>Down<c=/> or <c=magenta>J<c=/>/<c=magenta>K<c=/> \
+to scroll through the list, then <c=magenta>Enter<c=/> to repair the part. \
+Alternatively, you can press <c=magenta>R<c=/> to repair ALL damaged parts.\n\
+\n\
+On the right side of the screen is the parts shop, where you can buy or sell \
+parts for your spaceship.  Press <c=magenta>TAB<c=/> to switch between the \
+Repairs list and the Parts list.  Press <c=magenta>/<c=/> to switch between \
+buying parts and selling parts.\n\
+When <c=ltblue>buying<c=/> parts, use <c=magenta>Up<c=/>/<c=magenta>Down<c=/> \
+or <c=magenta>J<c=/>/<c=magenta>K<c=/> to scroll through the list, then \
+<c=magenta>Left<c=/>/<c=magenta>Right<c=/>, \
+<c=magenta>-<c=/>/<c=magenta>+=<c=/> or <c=magenta>H<c=/>/<c=magenta>L<c=/> to \
+increase & decrease the number of units you are buying.  Below the list of \
+available parts, you can see your current cash, the total price of the parts, \
+and your cash after the purchase.  Obviously, if your cash does not cover the \
+total price, you may not make a purchase.  Once you're ready to buy, press \
+<c=magenta>Enter<c=/> to buy the selected parts.\n\
+When <c=ltblue>selling<c=/> parts, use <c=magenta>Up<c=/>/<c=magenta>Down<c=/> \
+or <c=magenta>J<c=/>/<c=magenta>K<c=/> to scroll through the list, then press \
+<c=magenta>Enter<c=/> to sell the currently-selected part.\n\
+<c=ltred>Warning:<c=/> if you sell your engine, you will not be able to travel \
+anywhere until you buy a new one!\n\
+\n\
+You can press <c=magenta>Q<c=/> or <c=magenta>Esc<c=/> to return to the main \
+menu.\n\
+\n\
+Press <c=magenta>Enter<c=/> or <c=magenta>Esc<c=/> to close this help.");
+
+    } else if (ch == 'f' || ch == 'F') { // Fill up
       if (PLR.cash < fuel_fill_price) {
         popup("Cannot afford to fill the tank! You: $%d, price: $%d", PLR.cash,
               fuel_fill_price);
@@ -701,12 +904,12 @@ void travel_screen()
           destination_market = true;
           if (sellp == highest_price[n]) {
             data << "<c=green>";
-          } else {
+          } else if (!destination_market) {
             data << "<c=ltblue>";
           }
         } else if (!destination_market && buyp == lowest_price[n]) {
           destination_market = true;
-          data << "<c=white>";
+          data << "<c=ltcyan>";
         }
       }
       if (!destination_market) {
@@ -825,7 +1028,396 @@ void travel_screen()
       i_prices.draw(&w_prices);
     }
     long ch = getch();
-    if (ch == '\n') {
+    if (ch == '?') {
+      popup_scrollable("\
+This is the <c=magenta>Starmap<c=/> screen.  This screen allows you to view \
+information about all planets, and to travel to them.\n\
+\n\
+On the left side is a list of planets.  You can scroll through this list by \
+pressing <c=magenta>Down<c=/>/<c=magenta>Up<c=/> or \
+<c=magenta>J<c=/>/<c=magenta>K<c=/>.  Each planet is listed along with its \
+distance from your current position.  The planet names are also color-coded:\n\
+<c=green>Green:<c=/> This planet has the highest sell price for one or more of \
+the items in your cargo.\n\
+<c=ltblue>Blue:<c=/>  You can sell one or more of the items in your cargo at a \
+profit at this planet.\n\
+<c=ltcyan>Cyan:<c=/>  This planet has the lowest buy price for one or more \
+goods.\n\
+<c=ltgray>Gray:<c=/>  This planet does not fit into any of the above.\n\
+\n\
+By default, a starmap will appear in the center of the screen, showing the \
+positions of various planets.  They will be color-coded by biome (see below) \
+and size coded by gravity; if gravity <= 1g, the planet will be represented by \
+<c=brown>o<c=/>, and if gravity > 1g, the planet will be represented by \
+<c=brown>O<c=/>.  The planet you are currently orbiting will always be \
+represented by <c=brown>@<c=/>.\n\
+\n\
+You can switch to a display of prices on the currently-selected planet by \
+pressing <c=magenta>/<c=/>.  This shows the buy & sell prices of each good.  \
+The price will be <c=dkgray>dark gray<c=/> if the product cannot be \
+bought/sold at all, or if the buy price is higher than all the sell prices \
+(making it impossible to profit on goods bought there).  The price will be \
+<c=ltgreen>green<c=/> if it is the best price available.\n\
+\n\
+At the top-right of the screen, you will see the <c=yellow>Travel Time<c=/> \
+and <c=yellow>Travel Cost<c=/> (in fuel units) for traveling to the \
+currently-selected planet.  You'll also see your <c=yellow>Current Fuel<c=/>.\n\
+\n\
+At the top-center of the screen, you will see a few pieces of information \
+about the currently-selected statement.  This information can affect the \
+supply and demand of various goods.\n\
+<c=green>Biome<c=/> is information about the natural state of the world. \
+Possible biomes include:\n\
+<c=green>Grassy<c=/> - A planet dominated by fertile fields.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Fertilizer            <c=ltgreen>+<c=/>\n\
+  Crops                 <c=ltgreen>++<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+<c=/>\n\
+ <c=red>Demand effects:<c=/>\n\
+  Heavy Machinery       <c=ltgreen>+<c=/>\n\
+  Water                 <c=ltgreen>+<c=/>\n\
+  Solid Fuel            <c=ltgreen>+<c=/>\n\
+  Crops                 <c=ltred>-<c=/>\n\
+  Prepared Food         <c=ltred>-<c=/>\n\
+<c=green>Desert<c=/> - A planet covered in dry sandy deserts.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Raw Fuel              <c=ltgreen>++<c=/>\n\
+  Uranium               <c=ltgreen>+<c=/>\n\
+  Ore                   <c=ltred>-<c=/>\n\
+  Water                 <c=red>----<c=/>\n\
+  Fertilizer            <c=ltred>--<c=/>\n\
+ <c=red>Demand effects:<c=/>\n\
+  Water                 <c=green>++++<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+<c=/>\n\
+  Prepared Food         <c=ltgreen>++<c=/>\n\
+<c=green>Water<c=/> - A planet almost entirely covered in ocean.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Water                 <c=ltgreen>+++<c=/>\n\
+  Fertilizer            <c=ltgreen>++<c=/>\n\
+  Crops                 <c=ltgreen>+<c=/>\n\
+  Raw Fuel              <c=ltgreen>+<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>+<c=/>\n\
+  Ore                   <c=ltred>----<c=/>\n\
+ <c=red>Demand effects:<c=/>\n\
+  Elec. Components      <c=ltgreen>+<c=/>\n\
+  Machinery             <c=ltgreen>++<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>+<c=/>\n\
+  Uranium               <c=ltgreen>+<c=/>\n\
+  Water                 <c=red>None!<c=/>\n\
+  Fertilizer            <c=red>-<c=/>\n\
+<c=green>Swamp<c=/> - A planet dominated by murky swamps.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Fertilizer            <c=green>++++<c=/>\n\
+  Raw Fuel              <c=ltgreen>++<c=/>\n\
+  Ore                   <c=red>--<c=/>\n\
+  Crops                 <c=red>-<c=/>\n\
+ <c=red>Demand effects:<c=/>\n\
+  Metals                <c=ltgreen>+<c=/>\n\
+  Elec. Components      <c=ltgreen>+<c=/>\n\
+  Machinery             <c=ltgreen>++<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+<c=/>\n\
+  Prepared Food         <c=ltgreen>++<c=/>\n\
+<c=green>Ice<c=/> - A frozen planet.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Elec. Components      <c=ltgreen>+<c=/>\n\
+  Water                 <c=ltgreen>+<c=/>\n\
+  Fertilizer            <c=red>---<c=/>\n\
+  Crops                 <c=red>---<c=/>\n\
+ <c=red>Demand effects:<c=/>\n\
+  Consumer Electronics  <c=ltgreen>+<c=/>\n\
+  Machinery             <c=ltgreen>+<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+++<c=/>\n\
+  Prepared Food         <c=ltgreen>++<c=/>\n\
+  Solid Fuel            <c=ltgreen>++<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>+<c=/>\n\
+  Uranium               <c=ltgreen>+<c=/>\n\
+<c=green>Barren<c=/> - A rocky planet with little natural life.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Ore                   <c=ltgreen>+++<c=/>\n\
+  Water                 <c=red>---<c=/>\n\
+  Fertilizer            <c=red>-<c=/>\n\
+  Crops                 <c=red>---<c=/>\n\
+  Raw Fuel              <c=red>-<c=/>\n\
+ <c=red>Demand effects:<c=/>\n\
+  Metals                <c=ltgreen>+<c=/>\n\
+  Elec. Components      <c=ltgreen>+<c=/>\n\
+  Machinery             <c=ltgreen>+<c=/>\n\
+  Water                 <c=ltgreen>+<c=/>\n\
+  Fertilizer            <c=red>-<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>++<c=/>\n\
+  Uranium               <c=ltgreen>++<c=/>\n\
+<c=green>Varied<c=/> - A planet with a wide variety of biomes.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Ore                   <c=ltgreen>+<c=/>\n\
+  Crops                 <c=ltgreen>+<c=/>\n\
+  Raw Fuel              <c=ltgreen>+<c=/>\n\
+\n\
+<c=ltblue>Population<c=/> is information about who lives on the planet, and \
+how many of them there are.  Possible populations include:\n\
+<c=ltblue>Sparse<c=/> - The planet is barely settled.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Crops                 <c=ltgreen>+<c=/>\n\
+  Raw Fuel              <c=ltgreen>+<c=/>\n\
+  Metals                <c=ltred>-<c=/>\n\
+  Elec. Components      <c=ltred>--<c=/>\n\
+  Consumer Electronics  <c=ltred>--<c=/>\n\
+  Flour & Dried Foods   <c=ltred>-<c=/>\n\
+  Prepared Food         <c=ltred>--<c=/>\n\
+  Solid Fuel            <c=ltred>--<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Ore                   <c=ltred>--<c=/>\n\
+  Metals                <c=ltgreen>++<c=/>\n\
+  Consumer Electronics  <c=red>----<c=/>\n\
+  Machinery             <c=ltgreen>+<c=/>\n\
+  Fertilizer            <c=ltgreen>+<c=/>\n\
+  Flour & Dried Foods   <c=red>----<c=/>\n\
+  Prepared Food         <c=red>----<c=/>\n\
+<c=ltblue>Rural<c=/> - The planet lacks major cities.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Crops                 <c=ltgreen>++<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+<c=/>\n\
+  Elec. Components      <c=ltred>-<c=/>\n\
+  Consumer Electronics  <c=ltred>-<c=/>\n\
+  Solid Fuel            <c=ltred>-<c=/>\n\
+<c=ltblue>Settled<c=/> - The planet is a mixture of cities and open country.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Metals                <c=ltgreen>+<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+<c=/>\n\
+  Prepared Food         <c=ltgreen>+<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Consumer Electronics  <c=ltgreen>+<c=/>\n\
+  Water                 <c=ltgreen>+<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+<c=/>\n\
+  Prepared Food         <c=ltgreen>+<c=/>\n\
+  Solid Fuel            <c=ltgreen>+<c=/>\n\
+<c=ltblue>Urban<c=/> - The vast majority of the population lives in cities.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Ore                   <c=ltred>-<c=/>\n\
+  Water                 <c=ltred>-<c=/>\n\
+  Fertilizer            <c=ltgreen>+<c=/>\n\
+  Crops                 <c=ltred>--<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Ore                   <c=ltred>-<c=/>\n\
+  Consumer Electronics  <c=ltgreen>++<c=/>\n\
+  Machinery             <c=ltgreen>+<c=/>\n\
+  Water                 <c=ltgreen>++<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+<c=/>\n\
+  Prepared Food         <c=ltgreen>++<c=/>\n\
+  Solid Fuel            <c=ltgreen>++<c=/>\n\
+<c=ltblue>Megacity<c=/> - Nearly the entire surface of the world is one city.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Ore                   <c=ltred>--<c=/>\n\
+  Water                 <c=ltred>---<c=/>\n\
+  Fertilizer            <c=ltgreen>+++<c=/>\n\
+  Crops                 <c=red>----<c=/>\n\
+  Flour & Dried Foods   <c=ltred>-<c=/>\n\
+  Raw Fuel              <c=ltred>-<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Elec. Components      <c=ltgreen>++<c=/>\n\
+  Consumer Electronics  <c=green>++++<c=/>\n\
+  Machinery             <c=ltgreen>++<c=/>\n\
+  Water                 <c=ltgreen>+++<c=/>\n\
+  Fertilizer            <c=ltred>--<c=/>\n\
+  Crops                 <c=ltred>-<c=/>\n\
+  Prepared Food         <c=ltgreen>+++<c=/>\n\
+  Solid Fuel            <c=ltgreen>++<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>++<c=/>\n\
+  Uranium               <c=ltgreen>++<c=/>\n\
+<c=ltblue>Robotic<c=/> - The majority of the population is robotic.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Ore                   <c=ltgreen>+<c=/>\n\
+  Metals                <c=ltgreen>+<c=/>\n\
+  Elec. Components      <c=ltgreen>+<c=/>\n\
+  Machinery             <c=ltgreen>+<c=/>\n\
+  Fertilizer            <c=ltred>-<c=/>\n\
+  Prepared Food         <c=ltred>-<c=/>\n\
+  Raw Fuel              <c=ltgreen>+<c=/>\n\
+  Uranium               <c=ltgreen>+<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Elec. Components      <c=ltgreen>++<c=/>\n\
+  Consumer Electronics  <c=ltred>None!<c=/>\n\
+  Machinery             <c=ltred>--<c=/>\n\
+  Flour & Dried Foods   <c=red>-----<c=/>\n\
+  Prepared Food         <c=ltred>None!<c=/>\n\
+  Solid Fuel            <c=ltgreen>+<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>+++<c=/>\n\
+  Uranium               <c=green>++++<c=/>\n\
+<c=ltred>Industry<c=/> is the dominant form of industry on the planet.  While \
+other industries may exist, this one accounts for the majority of the work.  \
+Possible industries include:\n\
+<c=ltred>Living space<c=/> - Most denizens commute to other planets for work.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Ore                   <c=ltred>--<c=/>\n\
+  Metals                <c=ltred>--<c=/>\n\
+  Elec. Components      <c=ltred>-<c=/>\n\
+  Consumer Electronics  <c=ltred>-<c=/>\n\
+  Machinery             <c=ltred>--<c=/>\n\
+  Fertilizer            <c=ltgreen>++<c=/>\n\
+  Prepared Food         <c=ltgreen>+<c=/>\n\
+  Raw Fuel              <c=ltred>---<c=/>\n\
+  Solid Fuel            <c=ltred>--<c=/>\n\
+  Uranium               <c=ltred>-<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Ore                   <c=ltred>---<c=/>\n\
+  Metals                <c=ltgreen>+<c=/>\n\
+  Consumer Electronics  <c=green>++++<c=/>\n\
+  Water                 <c=ltgreen>+++<c=/>\n\
+  Crops                 <c=ltgreen>+<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+++<c=/>\n\
+  Prepared Food         <c=ltgreen>+++<c=/>\n\
+  Raw Fuel              <c=ltred>--<c=/>\n\
+<c=ltred>Mining<c=/> - Extraction of valuable assets from the planet.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Ore                   <c=green>++++<c=/>\n\
+  Metals                <c=ltgreen>+<c=/>\n\
+  Water                 <c=ltred>--<c=/>\n\
+  Crops                 <c=red>----<c=/>\n\
+  Raw Fuel              <c=green>+++++<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>+<c=/>\n\
+  Uranium               <c=ltgreen>+++<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Metals                <c=ltgreen>++<c=/>\n\
+  Elec. Components      <c=ltgreen>++<c=/>\n\
+  Consumer Electronics  <c=ltred>--<c=/>\n\
+  Machinery             <c=green>++++<c=/>\n\
+  Water                 <c=ltgreen>+<c=/>\n\
+  Fertilizer            <c=ltred>---<c=/>\n\
+  Crops                 <c=ltred>---<c=/>\n\
+  Flour & Dried Foods   <c=ltred>--<c=/>\n\
+  Prepared Food         <c=ltgreen>++<c=/>\n\
+  Solid Fuel            <c=ltgreen>++<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>+<c=/>\n\
+<c=ltred>Heavy Manufacturing<c=/> - Production of large goods.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Metals                <c=green>++++<c=/>\n\
+  Elec. Components      <c=ltgreen>+<c=/>\n\
+  Consumer Electronics  <c=ltgreen>+<c=/>\n\
+  Machinery             <c=ltgreen>+++<c=/>\n\
+  Crops                 <c=ltred>---<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Ore                   <c=ltgreen>+++<c=/>\n\
+  Metals                <c=ltgreen>++<c=/>\n\
+  Elec. Components      <c=ltgreen>+<c=/>\n\
+  Consumer Electronics  <c=ltred>--<c=/>\n\
+  Machinery             <c=ltgreen>+<c=/>\n\
+  Water                 <c=ltgreen>+<c=/>\n\
+  Fertilizer            <c=red>----<c=/>\n\
+  Crops                 <c=ltred>--<c=/>\n\
+  Flour & Dried Foods   <c=ltred>-<c=/>\n\
+  Prepared Food         <c=ltgreen>+<c=/>\n\
+  Raw Fuel              <c=ltgreen>+<c=/>\n\
+  Solid Fuel            <c=ltgreen>+++<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>+<c=/>\n\
+<c=ltred>Refining<c=/> - Refinement of raw goods, especially fuel.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Metals                <c=ltgreen>++<c=/>\n\
+  Elec. Components      <c=ltred>-<c=/>\n\
+  Consumer Electronics  <c=ltred>--<c=/>\n\
+  Machinery             <c=ltred>-<c=/>\n\
+  Water                 <c=ltred>---<c=/>\n\
+  Fertilizer            <c=ltgreen>+<c=/>\n\
+  Crops                 <c=ltred>---<c=/>\n\
+  Solid Fuel            <c=green>+++++<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>++<c=/>\n\
+  Uranium               <c=ltgreen>+<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Ore                   <c=ltgreen>+<c=/>\n\
+  Elec. Components      <c=ltgreen>+<c=/>\n\
+  Machinery             <c=ltgreen>+++<c=/>\n\
+  Water                 <c=ltgreen>+<c=/>\n\
+  Fertilizer            <c=red>----<c=/>\n\
+  Crops                 <c=ltred>---<c=/>\n\
+  Flour & Dried Foods   <c=ltred>-<c=/>\n\
+  Prepared Food         <c=ltgreen>++<c=/>\n\
+  Raw Fuel              <c=green>+++++<c=/>\n\
+  Solid Fuel            <c=ltgreen>+<c=/>\n\
+<c=ltred>Light Manufacturing<c=/> - Production of small goods.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Elec. Components      <c=ltgreen>+++<c=/>\n\
+  Consumer Electronics  <c=ltgreen>+++<c=/>\n\
+  Machinery             <c=ltgreen>+<c=/>\n\
+  Crops                 <c=ltred>-<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+<c=/>\n\
+  Prepared Food         <c=ltgreen>++<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Metals                <c=ltgreen>++<c=/>\n\
+  Elec. Components      <c=ltgreen>+++<c=/>\n\
+  Machinery             <c=ltgreen>++<c=/>\n\
+  Fertilizer            <c=ltred>-<c=/>\n\
+  Crops                 <c=ltgreen>++<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>++<c=/>\n\
+  Prepared Food         <c=ltgreen>+<c=/>\n\
+  Solid Fuel            <c=ltgreen>+<c=/>\n\
+<c=ltred>Farming<c=/> - Farming, either traditional or hydroponic.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Metals                <c=ltred>-<c=/>\n\
+  Water                 <c=ltred>-<c=/>\n\
+  Fertilizer            <c=ltgreen>++<c=/>\n\
+  Crops                 <c=green>++++++<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>++<c=/>\n\
+  Prepared Food         <c=ltgreen>+<c=/>\n\
+  Raw Fuel              <c=ltred>---<c=/>\n\
+  Solid Fuel            <c=ltred>--<c=/>\n\
+  Uranium               <c=ltred>--<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Machinery             <c=ltgreen>++<c=/>\n\
+  Water                 <c=ltgreen>++<c=/>\n\
+  Fertilizer            <c=green>+++++<c=/>\n\
+  Crops                 <c=ltred>-<c=/>\n\
+  Solid Fuel            <c=ltgreen>+++<c=/>\n\
+<c=ltred>Food Processing<c=/> - Production of food products from raw food.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Fertilizer            <c=ltgreen>++<c=/>\n\
+  Flour & Dried Foods   <c=green>++++<c=/>\n\
+  Prepared Food         <c=green>++++<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Elec. Components      <c=ltgreen>++<c=/>\n\
+  Consumer Electronics  <c=ltgreen>+<c=/>\n\
+  Machinery             <c=ltgreen>+<c=/>\n\
+  Water                 <c=ltgreen>++<c=/>\n\
+  Crops                 <c=green>++++<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>++<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>+<c=/>\n\
+<c=ltred>Business<c=/> - This planet is home to various corporate HQs.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Ore                   <c=ltred>-<c=/>\n\
+  Metals                <c=ltred>-<c=/>\n\
+  Consumer Electronics  <c=ltgreen>+<c=/>\n\
+  Crops                 <c=ltred>-<c=/>\n\
+  Raw Fuel              <c=ltred>-<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Elec. Components      <c=ltgreen>+<c=/>\n\
+  Consumer Electronics  <c=green>++++<c=/>\n\
+  Water                 <c=ltgreen>+<c=/>\n\
+  Fertilizer            <c=ltred>--<c=/>\n\
+  Crops                 <c=ltgreen>+<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+<c=/>\n\
+  Prepared Food         <c=ltgreen>++<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>+<c=/>\n\
+<c=ltred>Research<c=/> - This planet is interesting to researchers.\n\
+ <c=yellow>Supply effects:<c=/>\n\
+  Elec. Components      <c=ltgreen>++<c=/>\n\
+  Consumer Electronics  <c=ltred>-<c=/>\n\
+  Fertilizer            <c=ltgreen>+<c=/>\n\
+  Crops                 <c=ltgreen>+<c=/>\n\
+  Flour & Dried Foods   <c=ltgreen>+<c=/>\n\
+  Raw Fuel              <c=ltgreen>+<c=/>\n\
+  Hydrogen Fuel         <c=ltgreen>+++<c=/>\n\
+ <c=ltred>Demand Effects:<c=/>\n\
+  Ore                   <c=ltgreen>+<c=/>\n\
+  Elec. Components      <c=ltgreen>++<c=/>\n\
+  Machinery             <c=ltgreen>+<c=/>\n\
+  Water                 <c=ltgreen>+<c=/>\n\
+  Crops                 <c=ltgreen>++<c=/>\n\
+  Raw Fuel              <c=ltgreen>++<c=/>\n\
+  Uranium               <c=green>++++<c=/>\n\
+\n\
+\n\
+You can press <c=magenta>Q<c=/> or <c=magenta>Esc<c=/> to return to the main \
+menu.\n\
+\n\
+Press <c=magenta>Enter<c=/> or <c=magenta>Esc<c=/> to close this help.");
+    } else if (ch == '\n') {
 // Travel to selected planet
       if (PLR.fuel_remaining() < tcost) {
         popup("You do not have sufficient fuel (<c=red>%d<c=/>/%d)!",

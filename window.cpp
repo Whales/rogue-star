@@ -4,6 +4,7 @@
 #include <cstring>
 #include <sstream>
 #include "window.h"
+#include "cuss.h"
 
 bool parse_color_tags(std::string text, std::vector<std::string> &segments,
                       std::vector<long> &color_pairs, nc_color fg = c_white,
@@ -691,6 +692,50 @@ void popup_fullscreen(const char *mes, ...)
  do
   ch = getch();
  while(ch != ' ' && ch != '\n' && ch != KEY_ESC);
+}
+
+void popup_scrollable(const char *mes, ...)
+{
+  va_list ap;
+  va_start(ap, mes);
+  char buff[65536];
+  vsprintf(buff, mes, ap);
+  va_end(ap);
+  std::string tmp = buff;
+  int width = 80;
+  int height = 24;
+  Window w(0, 0, width, height);
+  cuss::interface i_popup;
+  i_popup.add_element(cuss::ELE_TEXTBOX, "text", 0, 0, 80, 24, false);
+  i_popup.set_data("text", tmp);
+/*
+  int pos = tmp.find('\n');
+  int line_num = 0;
+  while (pos != std::string::npos) {
+    std::string line = tmp.substr(0, pos);
+    line_num++;
+    w.putstr(1, line_num, c_white, c_black, line.c_str());
+    tmp = tmp.substr(pos + 1);
+    pos = tmp.find('\n');
+  }
+  line_num++;
+  w.putstr(1, line_num, c_white, c_black, tmp.c_str());
+*/
+  
+  char ch;
+  do {
+    i_popup.draw(&w);
+    ch = getch();
+    if (ch == 'k' || ch == 'K' || ch == KEY_UP) {
+      i_popup.add_data("text", -1);
+    } else if (ch == 'j' || ch == 'J' || ch == KEY_DOWN) {
+      i_popup.add_data("text", 1);
+    } else if (ch == ' ') {
+      i_popup.add_data("text", 10);
+    } else if (ch == 'b' || ch == 'B') {
+      i_popup.add_data("text", -10);
+    }
+  } while (ch != '\n' && ch != KEY_ESC);
 }
 
 bool parse_color_tags(std::string text, std::vector<std::string> &segments,

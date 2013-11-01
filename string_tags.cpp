@@ -4,9 +4,10 @@
 #include "window.h"
 
 std::string process_string_tags(const std::string &text,
-                                const std::string &planet_name)
+                                const std::string &planet_name,
+                                nc_color color)
 {
-  std::string ret;
+  std::string ret = "<c=" + color_tag(color) + ">";
   size_t tag = 0, lasttag = 0;
   while ( (tag = text.find("<", tag)) != std::string::npos) {
     size_t tagend = text.find(">", tag);
@@ -17,7 +18,9 @@ std::string process_string_tags(const std::string &text,
     ret += text.substr(lasttag, tag - lasttag);
 
     std::string tagstr = text.substr(tag + 1, tagend - tag - 1);
+    ret += get_tagcolor( tagstr );
     ret += get_tagstr( tagstr, planet_name );
+    ret += "<c=" + color_tag(color) + ">";
 
     tag     = tagend;
     lasttag = tagend + 1;
@@ -27,7 +30,24 @@ std::string process_string_tags(const std::string &text,
     ret += text.substr(lasttag);
   }
 
+  ret += "<c=/>";
+
   return ret;
+}
+
+std::string get_tagcolor(const std::string &tag)
+{
+  if (tag == "planet") {
+    return "<c=brown>";
+  } else if (tag == "acronym") {
+    return "<c=ltred>";
+  } else if (tag.substr(0, 7) == "company") {
+    return "<c=cyan>";
+  } else if (tag.substr(0, 7) == "product") {
+    return "<c=ltcyan>";
+  }
+
+  return "";
 }
 
 std::string get_tagstr(const std::string &tag, const std::string &planet_name)

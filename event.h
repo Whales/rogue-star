@@ -20,12 +20,13 @@ struct Price_modifier
 struct Event
 {
   //Event();
-  Event(std::string N, std::string D, int F, ...);
+  Event(std::string N, std::string D, int F, nc_color C, ...);
   ~Event();
 
   int frequency;
   std::string name;
   std::string description;
+  nc_color base_color;
   std::vector<Price_modifier> modifiers;
 };
 

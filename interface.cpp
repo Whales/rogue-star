@@ -327,6 +327,7 @@ void trade_screen()
         max_buyable = max_vol;
       }
     }
+    max_buyable += buy_amount[sel];
 
     if (ch == 'm' || ch == 'M') {
       if (buying) {
@@ -619,6 +620,23 @@ void travel_screen()
     return;
   }
 
+// Populate lowest/highest prices
+  int lowest_price[NUM_GOODS], highest_price[NUM_GOODS];
+  for (int i = 1; i < NUM_GOODS; i++) {
+    lowest_price[i] = 99999;
+    highest_price[i] = 0;
+    for (int n = 0; n < PLANETS.size(); n++) {
+      int tmp_buy  = PLANETS[n].buy_price(  Good_id(i) ),
+          tmp_sell = PLANETS[n].sell_price( Good_id(i) );
+      if (tmp_buy < lowest_price[i] && tmp_buy > 0) {
+        lowest_price[i] = tmp_buy;
+      }
+      if (tmp_sell > highest_price[i] && tmp_sell > 0) {
+        highest_price[i] = tmp_sell;
+      }
+    }
+  }
+
   Window w_planets(0, 0, 80, 24);
   Window w_prices(28, 5, 36, 18);
 
@@ -634,6 +652,30 @@ void travel_screen()
     if (distance == 0) {
       selection_start = i;
     }
+    if (PLR.travel_cost(distance) > PLR.fuel_remaining()) {
+      data << "<c=dkgray>";
+    } else {
+      bool destination_market = false;
+      for (int n = 1; n < NUM_GOODS; n++) {
+        int sellp = PLANETS[i].sell_price( Good_id(n) );
+        int buyp  = PLANETS[i].buy_price(  Good_id(n) );
+        if (PLR.cargo.amount[n] > 0 && PLR.cargo.price[n] < sellp) {
+          destination_market = true;
+          if (sellp == highest_price[n]) {
+            data << "<c=green>";
+          } else {
+            data << "<c=ltblue>";
+          }
+        } else if (!destination_market && buyp == lowest_price[n]) {
+          destination_market = true;
+          data << "<c=white>";
+        }
+      }
+      if (!destination_market) {
+        data << "<c=ltgray>";
+      }
+    }
+          
     data << PLANETS[i].name << " ";
     for (int j = 0; j < 12 - PLANETS[i].name.length(); j++) {
       data << " ";
@@ -642,6 +684,7 @@ void travel_screen()
       data << " ";
     }
     data << distance << " parsecs";
+    data << "<c=/>";
     planet_distance.push_back(distance);
     planet_text.push_back(data.str());
   }
@@ -695,24 +738,36 @@ void travel_screen()
         good_name += "....................";
         good_text.push_back(good_name);
         std::stringstream buy, sell;
-        int buyp =  dest->buy_price(  Good_id(i) );
+        int buyp  = dest->buy_price(  Good_id(i) );
         int sellp = dest->sell_price( Good_id(i) );
         if (buyp == -1) {
-          buy << "N/A";
+          buy << "<c=dkgray>N/A<c=/>";
         } else {
-          buy << buyp;
+          if (buyp >= highest_price[i]) {
+            buy << "<c=dkgray>";
+          } else if (buyp == lowest_price[i]) {
+            buy << "<c=green>";
+          } else {
+            buy << "<c=ltgray>";
+          }
+          buy << buyp << "<c=/>";
         }
         if (sellp == -1) {
-          sell << "N/A";
+          sell << "<c=dkgray>N/A<c=/>";
         } else {
-          sell << sellp;
+          if (sellp == highest_price[i]) {
+            sell << "<c=green>";
+          } else {
+            sell << "<c=ltgray>";
+          }
+          sell << sellp << "<c=/>";
         }
         buy_text.push_back ( buy.str());
         sell_text.push_back(sell.str());
       }
       i_prices.set_data("list_prices", good_text);
-      i_prices.set_data("list_buy", buy_text);
-      i_prices.set_data("list_sell", sell_text);
+      i_prices.set_data("list_buy",    buy_text );
+      i_prices.set_data("list_sell",   sell_text);
     } else {
       for (int i = 0; i < PLANETS.size(); i++) {
         glyph planet_sym = PLANETS[i].sym;

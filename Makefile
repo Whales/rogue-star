@@ -10,7 +10,7 @@ DEBUG = -g
 ODIR = obj
 DDIR = .deps
 
-TARGET = spacetrade
+TARGET = roguestar
 CUSSED_TARGET = cussed
 CUSSTEST_TARGET = cusstest
 

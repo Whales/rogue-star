@@ -7,13 +7,17 @@ std::vector<std::string> break_into_lines(std::string text, int linesize)
  size_t chars = 0; // Number of actually-printed characters at...
  size_t pos = 0; // ... this point in the string
  size_t linebreak = std::string::npos; // The last acceptable breakpoint
+ std::string active_color_tag;
  while (text.length() > linesize && pos < text.size()) {
   bool force = false;
   if (text.substr(pos, 3) == "<c=") {
-   pos = text.find('>', pos);
-   if (pos == std::string::npos) {
+   size_t tmppos = text.find('>', pos);
+   if (tmppos == std::string::npos) {
     //debugmsg("Bad colortag!");
     return ret;
+   } else {
+    active_color_tag = text.substr(pos, tmppos - pos + 1);
+    pos = tmppos;
    }
    linebreak = pos;
    chars--;
@@ -39,6 +43,9 @@ std::vector<std::string> break_into_lines(std::string text, int linesize)
     text = text.substr(linebreak);
    }
    ret.push_back(tmp);
+   if (!active_color_tag.empty()) {
+    text = active_color_tag + text;
+   }
    pos = 0;
    chars = 0;
    linebreak = std::string::npos;

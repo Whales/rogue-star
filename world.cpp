@@ -114,7 +114,7 @@ void World::update_prices(int total_supply[NUM_GOODS],
 
 void World::add_event(Event* ev)
 {
-  Event new_event("Nope", "No way", 0, 0);
+  Event new_event("Nope", "No way", 0, c_white, 0);
   new_event.name = ev->name;
   new_event.description = ev->description;
   int num_planets = PLANETS.size();
@@ -140,7 +140,9 @@ void World::add_event(Event* ev)
     tmpmod.percent_change = ref->percent_change;
     tmpmod.supply_change  = ref->supply_change;
     tmpmod.demand_change  = ref->demand_change;
-    tmpmod.timeout        = day + ref->timeout;
+    int min_timeout = day + (ref->timeout * 0.9);
+    int max_timeout = day + (ref->timeout * 1.1);
+    tmpmod.timeout        = rng(min_timeout, max_timeout);
     if (tmpmod.timeout > end_date) {
       end_date = tmpmod.timeout;
     }
@@ -151,13 +153,13 @@ void World::add_event(Event* ev)
   if (planet_used[0] != -1) {
     planet_name = PLANETS[ planet_used[0] ].name;
   }
-  add_news( new_event.description, planet_name, day, end_date );
+  add_news( new_event.description, planet_name, ev->base_color, day, end_date );
 }
 
-void World::add_news(std::string text, std::string planet_name, int start,
-                     int end)
+void World::add_news(std::string text, std::string planet_name, nc_color color,
+                     int start, int end)
 {
-  std::string processed = process_string_tags( text, planet_name );
+  std::string processed = process_string_tags( text, planet_name, color );
   News_item tmp(processed, start, end);
   news.push_back(tmp);
 }

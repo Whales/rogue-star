@@ -2,10 +2,13 @@
 #define _STRING_TAGS_H_
 
 #include <string>
+#include "color.h"
 
 std::string process_string_tags(const std::string &text,
-                                const std::string &planet_name);
+                                const std::string &planet_name,
+                                nc_color color);
 
+std::string get_tagcolor(const std::string &tag);
 std::string get_tagstr(const std::string &tag, const std::string &planet_name);
 
 std::string generate_company_name();

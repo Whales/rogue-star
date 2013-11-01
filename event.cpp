@@ -10,14 +10,15 @@ Event::Event()
 }
 */
 
-Event::Event(std::string N, std::string D, int F, ...)
+Event::Event(std::string N, std::string D, int F, nc_color C, ...)
 {
   name        = N;
   frequency   = F;
   description = D;
+  base_color  = C;
 
   va_list args;
-  va_start(args, F);
+  va_start(args, C);
   int buff;
   bool done = false;
   do {

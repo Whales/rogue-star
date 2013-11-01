@@ -27,8 +27,8 @@ struct World
   void advance_days(int amount);
   void update_prices(int total_supply[NUM_GOODS], int total_demand[NUM_GOODS]);
   void add_event   (Event *ev);
-  void add_news    (std::string text, std::string planet_name, int start,
-                    int end);
+  void add_news    (std::string text, std::string planet_name, nc_color color,
+                    int start, int end);
 
   int day;
   std::vector<Event> current_events;

@@ -7,4 +7,6 @@ struct Battle
 
   void enemy_turn();
   void player_turn();
+
+  void main_loop();
 };

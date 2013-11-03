@@ -11,6 +11,7 @@ struct Ship_part_type
   int max_hp;
   int mass;
   int cost;
+  int crew_requirement;
   Ship_part_type(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0) :
     name (N), max_hp (MHP), mass (M), cost (C) {};
   virtual bool is_weapon()  { return false; }
@@ -128,7 +129,7 @@ struct Ship
 
   int trade_volume, rep_trade_accel;
 
-  int crew_count, crew_morale;
+  int crew_amount, crew_morale;
 
   Ship();
   ~Ship(){};
@@ -161,6 +162,8 @@ struct Ship
   void expend_fuel(int amount);
   void add_fuel(int amount);
   void fill_tank();
+
+  std::string morale_level_name();
 };
 
 enum NPC_ship_id

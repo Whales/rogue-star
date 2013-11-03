@@ -19,10 +19,8 @@ Ship::Ship()
   trade_volume = 0;
   rep_trade_accel = 0;
 
-/*
-  crew_amount = 0;
-  crew_morale = 0;
-*/
+  crew_amount = 25;
+  crew_morale = 80;
 }
 
 void Ship::init()
@@ -272,6 +270,48 @@ void Ship::fill_tank()
   }
 }
 
+int Ship::skeleton_crew()
+{
+  int ret = 0;
+// How many teams does our crew need to split into?
+  int num_teams = 1 + parts.size() / 3;
+  std::vector<int> biggest_req;
+  
+  for (int i = 0; i < parts.size(); i++) {
+    if (parts[i].type->crew_requirement > biggest_req) {
+      biggest_req = parts[i].type->crew_requirement;
+    }
+  }
+int Ship::crew_requirement()
+{
+  
+
+std::string Ship::morale_level_name()
+{
+  if (crew_amount <= 0) {
+    return "<c=red>No crew!<c=/>";
+  }
+  if (crew_morale < 15) {
+    return "<c=red>Mutinous!<c=/>";
+  }
+  if (crew_morale < 30) {
+    return "<c=ltred>Discontent<c=/>";
+  }
+  if (crew_morale < 45) {
+    return "<c=yellow>Unhappy<c=/>";
+  } 
+  if (crew_morale < 60) {
+    return "<c=yellow>Fair<c=/>";
+  }
+  if (crew_morale < 75) {
+    return "<c=ltgreen>Good<c=/>";
+  }
+  if (crew_morale < 90) {
+    return "<c=ltgreen>Great<c=/>";
+  }
+  return "<c=green>Fantastic!<c=/>";
+}
+
 Ship_part::Ship_part(Ship_part_type *T)
 {
   charge = 0;
@@ -332,3 +372,4 @@ bool Manifest::rem_good(Good_id good, int am)
   }
   return true;
 }
+

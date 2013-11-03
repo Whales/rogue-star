@@ -901,12 +901,12 @@ void travel_screen()
         int sellp = PLANETS[i].sell_price( Good_id(n) );
         int buyp  = PLANETS[i].buy_price(  Good_id(n) );
         if (PLR.cargo.amount[n] > 0 && PLR.cargo.price[n] < sellp) {
-          destination_market = true;
           if (sellp == highest_price[n]) {
             data << "<c=green>";
           } else if (!destination_market) {
             data << "<c=ltblue>";
           }
+          destination_market = true;
         } else if (!destination_market && buyp == lowest_price[n]) {
           destination_market = true;
           data << "<c=ltcyan>";

@@ -708,6 +708,7 @@ void popup_scrollable(const char *mes, ...)
   cuss::interface i_popup;
   i_popup.add_element(cuss::ELE_TEXTBOX, "text", 0, 0, 80, 24, false);
   i_popup.set_data("text", tmp);
+  i_popup.set_data("text", c_ltgray);
 /*
   int pos = tmp.find('\n');
   int line_num = 0;

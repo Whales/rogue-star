@@ -12,5 +12,12 @@ void Battle::main_loop()
 
   Window w_battle(0, 0, 80, 24);
 
+  bool done = false;
+  while (!done) {
+    long ch = getch();
+    if (ch == ' ') {
+      player_turn();
+      enemy_turn();
+    
   
 */

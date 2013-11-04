@@ -5,8 +5,9 @@ struct Battle
 {
   std::vector<Ship> enemies;
 
+  void main_loop();
   void enemy_turn();
   void player_turn();
 
-  void main_loop();
+  void add_enemy(Ship enemy);
 };

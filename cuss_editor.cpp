@@ -218,6 +218,9 @@ while (!really_done) {
     } else if (ch == '}' && sel) {
      sel->align = ALIGN_RIGHT;
 
+    } else if (ch == '|' && sel) {
+     sel->align = ALIGN_CENTER;
+
     } else if (ch == 'm' && sel) {
      dm = DM_MOVE_ELE;
      bufx = sel->posx; bufy = sel->posy;
@@ -749,14 +752,18 @@ void elements_window(interface &edited)
     selected->align = ALIGN_LEFT;
    if (selected && ch == '}')
     selected->align = ALIGN_RIGHT;
+   if (selected && ch == '|')
+    selected->align = ALIGN_CENTER;
    if (selected && ch == '!' )
     selected->selectable = !(selected->selectable);
 
-  } else {
+  } else { // else if (cur && cur->name == "e_elelist")
    if (selected && ch == '{')
     selected->align = ALIGN_LEFT;
    else if (selected && ch == '}')
     selected->align = ALIGN_RIGHT;
+   else if (selected && ch == '|')
+    selected->align = ALIGN_CENTER;
    else if (ch == '!' )
     selected->selectable = !(selected->selectable);
    else if (ch == '\t') {
@@ -899,8 +906,12 @@ void update_elements_window(interface &editor, interface &edited)
   editor.set_data("e_elename", selected->name);
   editor.set_data("e_eletype", element_type_name(selected->type()) );
   editor.set_data("e_editable", (selected->selectable ? "Yes" : "No"));
-  editor.set_data("e_alignment",
-                  (selected->align == ALIGN_LEFT ? "Left" : "Right"));
+  if (selected->align == ALIGN_LEFT)
+   editor.set_data("e_alignment", "Left");
+  else if (selected->align == ALIGN_RIGHT)
+   editor.set_data("e_alignment", "Right");
+  else if (selected->align == ALIGN_CENTER)
+   editor.set_data("e_alignment", "Center");
 // Set up the "basic value" area
   switch (selected->type()) {
 

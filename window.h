@@ -86,6 +86,9 @@ class Window
 // Putstr_r is like putstr_n, but right-aligned
   void putstr_r(int x, int y, nc_color fg, nc_color bg, int maxlength,
                 std::string str, ...);
+// Putstr_c is like putstr_n, but center-aligned
+  void putstr_c(int x, int y, nc_color fg, nc_color bg, int maxlength,
+                std::string str, ...);
   
 // Special helper drawing functions
   void clear_area(int x1, int y1, int x2, int y2);

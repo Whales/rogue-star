@@ -237,6 +237,50 @@ void Window::putstr_r(int x, int y, nc_color fg, nc_color bg, int maxlength,
  } // We need to do color segments!
 }
 
+void Window::putstr_c(int x, int y, nc_color fg, nc_color bg, int maxlength,
+                      std::string str, ...)
+{
+ if (type == WINDOW_TYPE_GLYPHS)
+  return;
+ va_list ap;
+ va_start(ap, str);
+ char buff[8192];
+ vsprintf(buff, str.c_str(), ap);
+ va_end(ap);
+
+ std::string prepped = buff;
+ std::string tagless = strip_tags(prepped);
+  //std::string tagless = prepped;
+ if (tagless.length() < maxlength) {
+  x += (maxlength - tagless.length()) / 2;
+ }
+ long col = get_color_pair(fg, bg);
+
+ if (prepped.find("<c=") == std::string::npos) {
+// No need to do color segments, so just print!
+  wattron(w, col);
+  mvwprintw(w, y, x, prepped.substr(0, maxlength).c_str());
+  wattroff(w, col);
+ } else { // We need to do color segments!
+  wmove(w, y, x);
+  std::vector<std::string> segments;
+  std::vector<long> color_pairs;
+  parse_color_tags(prepped, segments, color_pairs, fg, bg);
+  for (int i = 0; i < segments.size(); i++) {
+   wattron( w, color_pairs[i] );
+   if (segments[i].length() > maxlength) {
+    wprintw(w, segments[i].substr(0, maxlength).c_str());
+    wattroff( w, color_pairs[i] );
+    return; // Stop; we've run out of space.
+   } else {
+    wprintw(w, segments[i].c_str());
+    maxlength -= segments[i].length();
+    wattroff( w, color_pairs[i] );
+   }
+  }
+ } // We need to do color segments!
+}
+
 void Window::clear_area(int x1, int y1, int x2, int y2)
 {
  if (type == WINDOW_TYPE_OTHER)

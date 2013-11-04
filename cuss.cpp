@@ -139,11 +139,14 @@ bool ele_drawing::translate(long from, long to)
 void ele_textbox::draw(Window *win)
 {
  std::vector<std::string> broken = break_into_lines(*text, sizex);
+ 
  win->clear_area(posx, posy, posx + sizex - 1, posy + sizey - 1);
 
  for (int i = 0; i + offset < broken.size() && i < sizey; i++) {
   if (align == ALIGN_RIGHT) {
     win->putstr_r(posx, posy + i, fg, bg, sizex, broken[i + offset]);
+  } else if (align == ALIGN_CENTER) {
+    win->putstr_c(posx, posy + i, fg, bg, sizex, broken[i + offset]);
   } else {
     win->putstr_n(posx, posy + i, fg, bg, sizex, broken[i + offset]);
   }
@@ -251,6 +254,8 @@ void ele_list::draw(Window *win)
    hilite = bg;
   if (align == ALIGN_RIGHT) {
     win->putstr_r(posx, posy + i, fg, hilite, sizex, (*list)[i + offset]);
+  } else if (align == ALIGN_CENTER) {
+    win->putstr_c(posx, posy + i, fg, hilite, sizex, (*list)[i + offset]);
   } else {
     win->putstr_n(posx, posy + i, fg, hilite, sizex, (*list)[i + offset]);
   }
@@ -461,6 +466,8 @@ void ele_number::draw(Window *win)
  nc_color hilite = (selected ? SELECTCOLOR : bg);
  if (align == ALIGN_RIGHT) {
   win->putstr_r(posx, posy, fg, hilite, sizex, "%d", (*value));
+ } else if (align == ALIGN_CENTER) {
+  win->putstr_c(posx, posy, fg, hilite, sizex, "%d", (*value));
  } else {
   win->putstr_n(posx, posy, fg, hilite, sizex, "%d", (*value));
  }
@@ -543,6 +550,9 @@ void ele_menu::draw(Window *win)
     if (align == ALIGN_RIGHT) {
       win->putstr_r(posx + 1, posy, fg, (selected ? SELECTCOLOR : bg),
                     sizex - 2, text);
+    } else if (align == ALIGN_CENTER) {
+      win->putstr_c(posx + 1, posy, fg, (selected ? SELECTCOLOR : bg),
+                    sizex - 2, text);
     } else {
       win->putstr_n(posx + 1, posy, fg, (selected ? SELECTCOLOR : bg),
                     sizex - 2, text);
@@ -576,6 +586,8 @@ void ele_menu::draw(Window *win)
 // Then draw menu items
   if (align == ALIGN_RIGHT) {
     win->putstr_r(posx + 1, posy, fg, bg, sizex - 2, title);
+  } else if (align == ALIGN_CENTER) {
+    win->putstr_c(posx + 1, posy, fg, bg, sizex - 2, title);
   } else {
     win->putstr_n(posx + 1, posy, fg, bg, sizex - 2, title);
   }
@@ -595,6 +607,8 @@ void ele_menu::draw(Window *win)
       nc_color back = (n == selection ? SELECTCOLOR : bg);
       if (align == ALIGN_RIGHT) {
         win->putstr_r(posx + 1, line, fg, back, sizex - 2, (*list)[n]);
+      } else if (align == ALIGN_CENTER) {
+        win->putstr_c(posx + 1, line, fg, back, sizex - 2, (*list)[n]);
       } else {
         win->putstr_n(posx + 1, line, fg, back, sizex - 2, (*list)[n]);
       }
@@ -892,6 +906,9 @@ void interface::draw_prototype(Window *win)
    }
    if (elements[i]->align == ALIGN_RIGHT) {
     win->putstr_r(x1 + 1, y1, (elements[i]->selected ? c_magenta : c_yellow),
+                  c_black, elements[i]->sizex - 2, elements[i]->name);
+   } else if (elements[i]->align == ALIGN_CENTER) {
+    win->putstr_c(x1 + 1, y1, (elements[i]->selected ? c_magenta : c_yellow),
                   c_black, elements[i]->sizex - 2, elements[i]->name);
    } else {
     win->putstr_n(x1 + 1, y1, (elements[i]->selected ? c_magenta : c_yellow),

@@ -24,8 +24,9 @@ namespace cuss {
 
   enum alignment
   {
-    ALIGN_LEFT = 0,
-    ALIGN_RIGHT = 1,
+    ALIGN_LEFT    = 0,
+    ALIGN_RIGHT   = 1,
+    ALIGN_CENTER  = 2,
     ALIGN_MAX
   };
 

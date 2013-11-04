@@ -278,13 +278,35 @@ int Ship::skeleton_crew()
   std::vector<int> biggest_req;
   
   for (int i = 0; i < parts.size(); i++) {
-    if (parts[i].type->crew_requirement > biggest_req) {
-      biggest_req = parts[i].type->crew_requirement;
+    for (std::vector<int>::iterator it = biggest_req.begin();
+         it != biggest_req.end(); it++) {
+      if (parts[i].type->crew_requirement > (*it)) {
+        biggest_req.insert(it, parts[i].type->crew_requirement);
+      }
     }
   }
+
+  for (int i = 0; i < num_teams && i < biggest_req.size(); i++) {
+    ret += biggest_req[i];
+  }
+
+  if (ret < 1) {
+    return 1; // We at least need a pilot!
+  }
+  if (ret > crew_requirement()) {
+    return crew_requirement();  // Shouldn't happen, but...
+  }
+  return ret;
+}
+
 int Ship::crew_requirement()
 {
-  
+  int ret = 1;
+  for (int i = 0; i < parts.size(); i++) {
+    ret += parts[i].type->crew_requirement;
+  }
+  return ret;
+}
 
 std::string Ship::morale_level_name()
 {

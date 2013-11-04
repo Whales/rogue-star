@@ -163,6 +163,9 @@ struct Ship
   void add_fuel(int amount);
   void fill_tank();
 
+  int skeleton_crew();
+  int crew_requirement();
+  
   std::string morale_level_name();
 };
 

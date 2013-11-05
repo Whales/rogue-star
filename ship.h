@@ -107,6 +107,8 @@ struct Ship_part
 
   Ship_part(Ship_part_type *T = NULL);
 
+  std::string hp_color_tag();
+
   int sell_price();
 
   void repair();
@@ -159,6 +161,7 @@ struct Ship
   int mass_breakpoint();
 
   int speed();
+  int combat_speed();
   int fuel_economy();
 
   int travel_time(int distance);

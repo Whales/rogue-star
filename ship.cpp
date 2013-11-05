@@ -179,6 +179,13 @@ int Ship::speed()
   return -1;
 }
 
+int Ship::combat_speed()
+{
+  Ship_part* engine = get_engine();
+  if (engine) {
+    SP_engine* engine_data = static_cast<SP_engine*>(engine->type);
+    int ret = engine_data->evasive_speed;
+    
 int Ship::fuel_economy()
 {
   Ship_part* engine = get_engine();
@@ -341,6 +348,30 @@ Ship_part::Ship_part(Ship_part_type *T)
     type = T;
     hp = type->max_hp;
   }
+}
+
+std::string Ship_part::hp_color_tag()
+{
+  if (!type || type->max_hp == 0) {
+    return "<c=pink>";
+  }
+  int percent = (hp * 100) / type->max_hp;
+  if (percent < 20) {
+    return "<c=red>";
+  }
+  if (percent < 40) {
+    return "<c=ltred>";
+  }
+  if (percent < 60) {
+    return "<c=yellow>";
+  }
+  if (percent < 80) {
+    return "<c=ltgreen>";
+  }
+  if (percent < 100) {
+    return "<c=green>";
+  }
+  return "<c=white>"
 }
 
 int Ship_part::sell_price()

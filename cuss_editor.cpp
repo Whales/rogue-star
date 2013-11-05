@@ -17,7 +17,8 @@ void draw_box (interface &edited, int x1, int y1, int x2, int y2);
 void temp_line(Window &w,         int x1, int y1, int x2, int y2);
 void temp_box (Window &w,         int x1, int y1, int x2, int y2);
 void paint(interface &edited, int x, int y);
-void fix_lines(interface &edited, std::string name);
+void fix_lines(interface &edited, std::string name,
+               int x1 = -1, int y1 = -1, int x2 = -1, int y2 = -1);
 bool is_line(long ch);
 
 void help();
@@ -36,6 +37,7 @@ DM_DELETE,
 DM_ELEMENT,
 DM_MOVE_ELE,
 DM_RESIZE_ELE,
+DM_FIXLINES,
 DM_MAX
 };
 
@@ -85,7 +87,7 @@ while (!really_done) {
 
   if (dm == DM_LINE)
    temp_line(w, bufx, bufy, posx, posy);
-  if (dm == DM_BOX || dm == DM_ELEMENT || dm == DM_DELETE)
+  if (dm == DM_BOX || dm == DM_ELEMENT || dm == DM_DELETE || dm == DM_FIXLINES)
    temp_box(w, bufx, bufy, posx, posy);
 
   w.refresh();
@@ -236,8 +238,21 @@ while (!really_done) {
      set_pen_symbol();
 
     } else if (ch == '"') {
-     pen.symbol = LINE_XXXX;
-
+     switch (pen.symbol) {
+      case LINE_XXXX: pen.symbol = LINE_XOXO; break;
+      case LINE_XOXO: pen.symbol = LINE_OXOX; break;
+      case LINE_OXOX: pen.symbol = LINE_XXOO; break;
+      case LINE_XXOO: pen.symbol = LINE_OXXO; break;
+      case LINE_OXXO: pen.symbol = LINE_OOXX; break;
+      case LINE_OOXX: pen.symbol = LINE_XOOX; break;
+      case LINE_XOOX: pen.symbol = LINE_XXOX; break;
+      case LINE_XXOX: pen.symbol = LINE_XXXO; break;
+      case LINE_XXXO: pen.symbol = LINE_OXXX; break;
+      case LINE_OXXX: pen.symbol = LINE_XOXX; break;
+      case LINE_XOXX: pen.symbol = LINE_XXXX; break;
+      default:        pen.symbol = LINE_XXXX; break;
+     }
+      
     } else if (ch == '[') {
      set_pen_fg();
 
@@ -285,7 +300,8 @@ while (!really_done) {
       edited.set_data("BG", glyph(-1, c_black, c_black), posx, posy);
 
     } else if (ch == '/') {
-     fix_lines(edited, "BG");
+     bufx = posx; bufy = posy;
+     dm = DM_FIXLINES;
 
     } else if (ch == 'S' || ch == 's') {
      char quitconf = popup_getkey("Quit & Save?");
@@ -319,6 +335,13 @@ while (!really_done) {
  
       case DM_BOX:
        draw_box(edited, bufx, bufy, posx, posy);
+       dm = DM_NULL;
+       bufx = -1;
+       bufy = -1;
+       break;
+
+      case DM_FIXLINES:
+       fix_lines(edited, "BG", bufx, bufy, posx, posy);
        dm = DM_NULL;
        bufx = -1;
        bufy = -1;
@@ -1146,65 +1169,80 @@ void temp_box (Window &w, int x1, int y1, int x2, int y2)
 void paint(interface &edited, int x, int y)
 {
  edited.set_data("BG", pen, x, y);
+/*
  if (pen.symbol == LINE_XXXX)
   fix_lines(edited, "BG");
+*/
 }
 
-void fix_lines(interface &edited, std::string name)
+void fix_lines(interface &edited, std::string name,
+               int x1, int y1, int x2, int y2)
 {
+ if (x1 == -1 || x2 == -1 || y1 == -1 || y2 == -1) {
+  x1 = 0;
+  y1 = 0;
+  x2 = edited.sizex;
+  y2 = edited.sizey;
+ }
  element* ele = edited.find_by_name(name);
  ele_drawing* bg = static_cast<ele_drawing*>(ele);
  if (!bg)
   return;
  std::map<point, glyph>::iterator it;
  for (it = bg->drawing.begin(); it != bg->drawing.end(); it++) {
-  point north(it->first.x    , it->first.y - 1);
-  point  east(it->first.x + 1, it->first.y    );
-  point south(it->first.x    , it->first.y + 1);
-  point  west(it->first.x - 1, it->first.y    );
-  if (is_line(it->second.symbol)) {
-   if (is_line( bg->drawing[north].symbol)) {
-    if (is_line( bg->drawing[east].symbol)) {
-     if (is_line( bg->drawing[south].symbol)) {
-      if (is_line( bg->drawing[west].symbol))
-       it->second.symbol =LINE_XXXX;
-      else
-       it->second.symbol =LINE_XXXO;
-     } else {
-      if (is_line( bg->drawing[west].symbol))
-       it->second.symbol =LINE_XXOX;
-      else
-       it->second.symbol =LINE_XXOO;
-     }
+  point p = it->first;
+  if (p.x >= x1 && p.x <= x2 && p.y >= y1 && p.y <= y2 &&
+      is_line(it->second.symbol)) {
+    point north(it->first.x    , it->first.y - 1);
+    point  east(it->first.x + 1, it->first.y    );
+    point south(it->first.x    , it->first.y + 1);
+    point  west(it->first.x - 1, it->first.y    );
+    bool north_line = (north.y >= y1 && is_line(bg->drawing[north].symbol) );
+    bool  east_line = ( east.x <= x2 && is_line(bg->drawing[east ].symbol) );
+    bool south_line = (south.y <= y2 && is_line(bg->drawing[south].symbol) );
+    bool  west_line = ( west.x >= x1 && is_line(bg->drawing[west ].symbol) );
+    if (north_line) {
+      if (east_line) {
+        if (south_line) {
+          if (west_line)
+            it->second.symbol =LINE_XXXX;
+          else
+            it->second.symbol =LINE_XXXO;
+        } else {
+          if (west_line)
+            it->second.symbol =LINE_XXOX;
+          else
+            it->second.symbol =LINE_XXOO;
+        }
+      } else {
+        if (south_line) {
+          if (west_line)
+            it->second.symbol =LINE_XOXX;
+          else
+            it->second.symbol =LINE_XOXO;
+        } else {
+          if (west_line)
+            it->second.symbol =LINE_XOOX;
+        }
+      }
     } else {
-     if (is_line( bg->drawing[south].symbol)) {
-      if (is_line( bg->drawing[west].symbol))
-       it->second.symbol =LINE_XOXX;
-      else
-       it->second.symbol =LINE_XOXO;
-     } else {
-      if (is_line( bg->drawing[west].symbol))
-       it->second.symbol =LINE_XOOX;
-     }
-    }
-   } else {
-    if (is_line( bg->drawing[east].symbol)) {
-     if (is_line( bg->drawing[south].symbol)) {
-      if (is_line( bg->drawing[west].symbol))
-       it->second.symbol =LINE_OXXX;
-      else
-       it->second.symbol =LINE_OXXO;
-     } else {
-      it->second.symbol =LINE_OXOX;
-     }
-    } else {
-     if (is_line( bg->drawing[south].symbol)) {
-      if (is_line( bg->drawing[west].symbol))
-       it->second.symbol =LINE_OOXX;
-     } else {
-      it->second.symbol =LINE_OXOX;
-     }
-    }
+      if (east_line) {
+        if (south_line) {
+          if (west_line)
+            it->second.symbol =LINE_OXXX;
+          else
+            it->second.symbol =LINE_OXXO;
+        } else {
+          it->second.symbol =LINE_OXOX;
+        }
+      } else {
+        if (south_line) {
+          if (west_line)
+            it->second.symbol =LINE_OOXX;
+        } else {
+          it->second.symbol =LINE_OXOX;
+        }
+      }
    }
   }
  }

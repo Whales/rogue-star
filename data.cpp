@@ -65,25 +65,25 @@ void define_parts()
 {
   PARTS.push_back( new Ship_part_type() ); // Null
 
-//              Name              HP  Mass  Cost
-  NEW_SP_WEAP   ("plasma cannon", 10,  60, 12000, 2, 1, 0);
+//              Name              HP  Mass  Cost Crew
+  NEW_SP_WEAP   ("plasma cannon", 10,  60, 12000,  2, 2, 1, 0);
 
-//              Name              HP  Mass  Cost
-  NEW_SP_ARMOR  ("armor plating", 50, 100,  8000, 10, 0);
+//              Name              HP  Mass  Cost Crew
+  NEW_SP_ARMOR  ("armor plating", 50, 100,  8000,  0, 10, 0);
 
-  NEW_SP_ARMOR  ("basic shield",  10,  25, 10000, 0, 5);
+  NEW_SP_ARMOR  ("basic shield",  10,  25, 10000,  2, 0, 5);
 
-//              Name              HP  Mass  Cost
-  NEW_SP_DEVICE ("test device",    1,   1,  3000);
+//              Name              HP  Mass  Cost Crew
+  NEW_SP_DEVICE ("test device",    1,   1,  3000,  2);
 
-//              Name              HP  Mass  Cost Bunks Storage
-  NEW_SP_CARGO  ("cargo bay",      5,  40,  4000,   0,   20);
+//              Name              HP  Mass  Cost Crew Bunks Storage
+  NEW_SP_CARGO  ("cargo bay",      5,  40,  4000,  2,  0,   20);
 
-//              Name              HP  Mass  Cost
-  NEW_SP_CARGO  ("berth",          5,  20,  4000,  25,    0);
+//              Name              HP  Mass  Cost Crew
+  NEW_SP_CARGO  ("berth",          5,  20,  4000,  1, 25,    0);
 
-//              Name              HP  Mass  Cost
-  NEW_SP_ENGINE ("TX-1 Engine",   15,  75, 14000,
+//              Name              HP  Mass  Cost Crew
+  NEW_SP_ENGINE ("TX-1 Engine",   15,  75, 14000,  2,
 //              FUEL           POWER  MBP Speed Evade
                 GOOD_SOLIDFUEL,  20,  500, 50,     10);
 

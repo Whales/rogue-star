@@ -293,13 +293,13 @@ int Ship::skeleton_crew()
   if (ret < 1) {
     return 1; // We at least need a pilot!
   }
-  if (ret > crew_requirement()) {
-    return crew_requirement();  // Shouldn't happen, but...
+  if (ret > full_crew()) {
+    return full_crew();  // Shouldn't happen, but...
   }
   return ret;
 }
 
-int Ship::crew_requirement()
+int Ship::full_crew()
 {
   int ret = 1;
   for (int i = 0; i < parts.size(); i++) {

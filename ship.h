@@ -12,8 +12,9 @@ struct Ship_part_type
   int mass;
   int cost;
   int crew_requirement;
-  Ship_part_type(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0) :
-    name (N), max_hp (MHP), mass (M), cost (C) {};
+  Ship_part_type(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0,
+                 int CR = 0) :
+    name (N), max_hp (MHP), mass (M), cost (C), crew_requirement (CR) {};
   virtual bool is_weapon()  { return false; }
   virtual bool is_armor()   { return false; }
   virtual bool is_device()  { return false; }
@@ -24,8 +25,9 @@ struct Ship_part_type
 struct SP_weapon : public Ship_part_type
 {
   SP_weapon(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0,
+                                    int CR = 0,
                                     int D = 0, int FR = 0, int A = 0) :
-    Ship_part_type(N, MHP, M, C), 
+    Ship_part_type(N, MHP, M, C, CR), 
     damage (D), fire_rate (FR), accuracy (A) {};
   virtual bool is_weapon()  { return true; }
   int damage;
@@ -36,8 +38,9 @@ struct SP_weapon : public Ship_part_type
 struct SP_armor : public Ship_part_type
 {
   SP_armor(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0,
+                                   int CR = 0,
                                    int P = 0, int E = 0) :
-    Ship_part_type(N, MHP, M, C), 
+    Ship_part_type(N, MHP, M, C, CR), 
     physical (P), energy (E) {};
   virtual bool is_armor()   { return true; }
   int physical;
@@ -46,8 +49,9 @@ struct SP_armor : public Ship_part_type
 
 struct SP_device : public Ship_part_type
 {
-  SP_device(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0) :
-    Ship_part_type(N, MHP, M, C)
+  SP_device(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0,
+                                    int CR = 0) :
+    Ship_part_type(N, MHP, M, C, CR)
     {};
   virtual bool is_device()  { return true; }
 };
@@ -55,8 +59,9 @@ struct SP_device : public Ship_part_type
 struct SP_cargo : public Ship_part_type
 {
   SP_cargo(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0,
+                                   int CR = 0,
                                    int B = 0, int V = 0) :
-    Ship_part_type(N, MHP, M, C),
+    Ship_part_type(N, MHP, M, C, CR),
     bunks (B), volume (V) {};
   virtual bool is_cargo()   { return true; }
   int bunks;
@@ -66,9 +71,10 @@ struct SP_cargo : public Ship_part_type
 struct SP_engine : public Ship_part_type
 {
   SP_engine(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0,
+                                    int CR = 0,
             Good_id F = GOOD_NULL, int PO = 0, int MB = 0, int IS = 0,
             int ES = 0) :
-    Ship_part_type(N, MHP, M, C),
+    Ship_part_type(N, MHP, M, C, CR),
     fuel (F), power_output (PO), mass_breakpoint (MB),
     interstellar_speed (IS), evasive_speed (ES) {};
 
@@ -164,7 +170,7 @@ struct Ship
   void fill_tank();
 
   int skeleton_crew();
-  int crew_requirement();
+  int full_crew();
   
   std::string morale_level_name();
 };

@@ -10,10 +10,10 @@
     new Good_datum(name, min, max, volume, mass) )
 
 #define NEW_SP_WEAP(name, hp, weight, cost, crew, sym, fg, damage, fire_rate,\
-                    acc) \
+                    acc, range) \
   PARTS.push_back( \
     new SP_weapon(name, hp, weight, cost, crew, glyph(sym, fg, c_black),\
-                  damage, fire_rate, acc) )
+                  damage, fire_rate, acc, range) )
 
 #define NEW_SP_ARMOR(name, hp, weight, cost, crew, physical, energy )\
   PARTS.push_back( \
@@ -69,8 +69,8 @@ void define_parts()
 
 //              Name              HP  Mass  Cost Crew
   NEW_SP_WEAP   ("plasma cannon", 10,  60, 12000,  2,
-//  Sym  FG     Dam Rate Acc
-    '^', c_cyan,  2,  1,  0);
+//  Sym  FG     Dam Rate Acc Range
+    '^', c_cyan,  2,  1,  0,  1000);
 
 //              Name              HP  Mass  Cost Crew
   NEW_SP_ARMOR  ("armor plating", 50, 100,  8000,  0,

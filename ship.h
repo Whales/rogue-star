@@ -28,14 +28,15 @@ struct SP_weapon : public Ship_part_type
   SP_weapon(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0,
                                     int CR = 0,
                                     glyph S = glyph(), int D = 0, int FR = 0,
-                                    int A = 0) :
+                                    int A = 0, int R = 0) :
     Ship_part_type(N, MHP, M, C, CR), 
-    symbol (S), damage (D), fire_rate (FR), accuracy (A) {};
+    symbol (S), damage (D), fire_rate (FR), accuracy (A), range (R) {};
   virtual bool is_weapon()  { return true; }
   glyph symbol;
   int damage;
   int fire_rate;
   int accuracy;
+  int range;
 };
 
 struct SP_armor : public Ship_part_type

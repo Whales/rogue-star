@@ -51,15 +51,15 @@ void Battle::main_loop()
       std::stringstream enemy_num_ss;
       enemy_num_ss << (i + 1);
       std::string num = enemy_num_ss.str();
-      std::string ele_enemy   = "text_enemy_" + num,
-                  ele_armor   = "text_enemy_armor_" + num,
+      std::string ele_enemy   = "text_enemy_"         + num,
+                  ele_armor   = "text_enemy_armor_"   + num,
                   ele_shields = "text_enemy_shields_" + num,
                   ele_engines = "text_enemy_engines_" + num,
                   ele_weapons = "text_enemy_weapons_" + num;
-      i_battle.set_data(ele_enemy,   enemies[i].name);
-      i_battle.set_data(ele_armor,   enemies[i].armor_meter());
-      i_battle.set_data(ele_shields, enemies[i].shields_meter());
-      i_battle.set_data(ele_engines, enemies[i].engine_meter());
+      i_battle.set_data(ele_enemy,   enemies[i].name            );
+      i_battle.set_data(ele_armor,   enemies[i].armor_meter()   );
+      i_battle.set_data(ele_shields, enemies[i].shields_meter() );
+      i_battle.set_data(ele_engines, enemies[i].engine_meter()  );
       i_battle.set_data(ele_weapons, enemies[i].weapon_symbols());
     }
     i_battle.draw(&w_battle);
@@ -121,7 +121,20 @@ void Battle::main_loop()
 
 void Battle::player_turn()
 {
-  
+// First, fire guns
+  if (target >= 0 && target < enemies.size()) {
+    for (int i = 0; i < PLR.parts.size(); i++) {
+      if (PLR.parts[i].type->is_weapon()) {
+        SP_weapon* weap_data = static_cast<SP_weapon*>(PLR.parts[i].type);
+        if (PLR.parts[i].charge < weap_data->fire_rate) {
+          PLR.parts[i].charge++;
+        } else {
+          PLR.parts[i].charge = 0;
+          std::stringstream mess_text;
+          mess_text << "You fire your " << weap_data->name << " at " <<
+                       enemies[target].name << "!";
+          add_message(mess_text.str());
+      
 }
 
 void Battle::enemy_turn()

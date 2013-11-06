@@ -26,7 +26,8 @@ LDFLAGS = -lncurses
 endif
 
 SOURCES = $(filter-out cuss_editor.cpp cusstest.cpp, $(wildcard *.cpp))
-CUSSED_SOURCES = $(filter-out main.cpp cusstest.cpp, $(wildcard *.cpp))
+CUSSED_SOURCES = cuss.cpp cuss_editor.cpp window.cpp glyph.cpp color.cpp stringfunc.cpp files.cpp
+# CUSSED_SOURCES = $(filter-out main.cpp cusstest.cpp ship.cpp battle.cpp data.cpp interface.cpp globals.cpp, $(wildcard *.cpp))
 CUSSTEST_SOURCES = $(filter-out main.cpp cuss_editor.cpp, $(wildcard *.cpp))
 _OBJS = $(SOURCES:.cpp=.o)
 _CUSSED_OBJS = $(CUSSED_SOURCES:.cpp=.o)

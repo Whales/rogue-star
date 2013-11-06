@@ -344,6 +344,47 @@ int Ship::armor()
   return ret;
 }
 
+int Ship::shields()
+{
+  int ret = 0, count = 0;
+  for (int i = 0; i < parts.size(); i++) {
+    if (parts[i].type->is_armor()) {
+      SP_armor* armor_data = static_cast<SP_armor*>(parts[i].type);
+      int amt = (armor_data->energy * parts[i].charge) / 100;
+      if (count < amt) {
+        ret += amt - count;
+      } else if (amt > 0) {
+        ret++;
+      }
+    }
+  }
+  if (ret > 120) {
+    return 120;
+  }
+  return ret;
+}
+
+std::string Ship::weapon_symbols()
+{
+  std::stringstream ret;
+  for (int i = 0; i < parts.size(); i++) {
+    if (parts[i].type->is_weapon()) {
+      SP_weapon* weap_data = static_cast<SP_weapon*>(parts[i].type);
+      glyph sym = weap_data->symbol;
+      int hp_percent = (parts[i].hp * 100) / weap_data->max_hp;
+      if (hp_percent < 20) {
+        sym.bg = c_red;
+      } else if (hp_percent < 100) {
+        sym.bg = c_brown;
+      }
+      if (hp_percent != 0) {
+        ret << sym.text_formatted();
+      }
+    }
+  }
+  return ret.str();
+}
+
 std::string Ship::armor_meter()
 {
   std::stringstream ret;
@@ -368,27 +409,8 @@ std::string Ship::armor_meter()
       ret << '.';
     }
   }
+  ret << "<c=/>";
   return ret.str();
-}
-
-int Ship::shields()
-{
-  int ret = 0, count = 0;
-  for (int i = 0; i < parts.size(); i++) {
-    if (parts[i].type->is_armor()) {
-      SP_armor* armor_data = static_cast<SP_armor*>(parts[i].type);
-      int amt = (armor_data->energy * parts[i].charge) / 100;
-      if (count < amt) {
-        ret += amt - count;
-      } else if (amt > 0) {
-        ret++;
-      }
-    }
-  }
-  if (ret > 120) {
-    return 120;
-  }
-  return ret;
 }
 
 std::string Ship::shields_meter()
@@ -415,27 +437,38 @@ std::string Ship::shields_meter()
       ret << '.';
     }
   }
+  ret << "<c=/>";
   return ret.str();
 }
 
-std::string Ship::weapon_symbols()
+std::string Ship::engine_meter()
 {
+  Ship_part* engine = get_engine();
+  if (!engine || engine->hp == 0) {
+    return "<c=red>xxx Dead xxx<c=/>";
+  }
+
+  int blocks = 1 + ( (11 * engine->hp) / engine->type->max_hp);
+
   std::stringstream ret;
-  for (int i = 0; i < parts.size(); i++) {
-    if (parts[i].type->is_weapon()) {
-      SP_weapon* weap_data = static_cast<SP_weapon*>(parts[i].type);
-      glyph sym = weap_data->symbol;
-      int hp_percent = (parts[i].hp * 100) / weap_data->max_hp;
-      if (hp_percent < 20) {
-        sym.bg = c_red;
-      } else if (hp_percent < 100) {
-        sym.bg = c_brown;
-      }
-      if (hp_percent != 0) {
-        ret << sym.text_formatted();
-      }
+  if (blocks <= 3) {
+    ret << "<c=red>";
+  } else if (blocks <= 6) {
+    ret << "<c=ltred>";
+  } else {
+    ret << "<c=magenta>";
+  }
+  for (int i = 0; i < 12; i++) {
+    if (i < blocks) {
+      ret << '#';
+    } else if (i == blocks) {
+      ret << "<c=pink>.";
+    } else {
+      ret << '.';
     }
   }
+  ret << "<c=/>";
+
   return ret.str();
 }
 

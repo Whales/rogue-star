@@ -180,10 +180,11 @@ struct Ship
   int full_crew();
 
   int armor();
-  std::string armor_meter();
   int shields();
-  std::string shields_meter();
   std::string weapon_symbols();
+  std::string armor_meter();
+  std::string shields_meter();
+  std::string engine_meter();
   
   std::string morale_level_name();
 };

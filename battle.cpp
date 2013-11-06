@@ -54,10 +54,12 @@ void Battle::main_loop()
       std::string ele_enemy   = "text_enemy_" + num,
                   ele_armor   = "text_enemy_armor_" + num,
                   ele_shields = "text_enemy_shields_" + num,
+                  ele_engines = "text_enemy_engines_" + num,
                   ele_weapons = "text_enemy_weapons_" + num;
       i_battle.set_data(ele_enemy,   enemies[i].name);
       i_battle.set_data(ele_armor,   enemies[i].armor_meter());
       i_battle.set_data(ele_shields, enemies[i].shields_meter());
+      i_battle.set_data(ele_engines, enemies[i].engine_meter());
       i_battle.set_data(ele_weapons, enemies[i].weapon_symbols());
     }
     i_battle.draw(&w_battle);
@@ -119,6 +121,7 @@ void Battle::main_loop()
 
 void Battle::player_turn()
 {
+  
 }
 
 void Battle::enemy_turn()

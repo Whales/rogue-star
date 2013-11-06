@@ -3,12 +3,15 @@
 
 #include "ship.h"
 #include "globals.h"
+#include "window.h"
+#include <string>
+#include <vector>
 
 enum Crew_task
 {
   CREW_NULL = 0,
   CREW_REPAIR,
-  CREW_DEIONIZE,
+  CREW_EMP_REPAIR,
   CREW_ENGINE,
   CREW_WEAPONS,
   NUM_CREW_TASKS
@@ -27,7 +30,7 @@ enum Engine_task
 const std::string Crew_task_name[NUM_CREW_TASKS] = {
 "Idle",
 "Repairing",
-"De-ionize",
+"Fix EMP",
 "Engine",
 "Weapons"
 };
@@ -43,16 +46,25 @@ const std::string Engine_task_name[NUM_ENGINE_TASKS] = {
 struct Battle
 {
   std::vector<Ship> enemies;
+  std::vector<std::string> messages;
 
   Crew_task crew;
   Engine_task engine;
+  int target;
 
+// Constructor/Destructor
   Battle();
   ~Battle();
+// In-battle functions
   void main_loop();
   void enemy_turn();
   void player_turn();
-
+  void add_message(std::string message);
+  void set_crew_task();
+  void set_engine_task();
+  void set_target(Window &w_battle);
+  void display_weapon_symbols();
+// Init functions
   void add_enemy(Ship enemy);
 };
 

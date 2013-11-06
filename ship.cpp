@@ -3,6 +3,7 @@
 #include "window.h"
 #include "rng.h"
 #include <math.h>
+#include <sstream>
 
 Ship::Ship()
 {
@@ -185,19 +186,27 @@ int Ship::combat_speed()
   if (engine) {
     SP_engine* engine_data = static_cast<SP_engine*>(engine->type);
     int ret = engine_data->evasive_speed;
+    int mass = total_mass();
+    if (mass > engine_data->power_output * 8) {
+      ret = (ret * engine_data->power_output * 8) / mass;
+    }
+    return ret;
+  }
+  return 0;
+}
     
 int Ship::fuel_economy()
 {
   Ship_part* engine = get_engine();
   if (engine) {
+    int mass = total_mass();
     SP_engine* engine_data = static_cast<SP_engine*>(engine->type);
-    int ret = total_mass() / engine_data->power_output; // Fuel per parsec
-    ret /= (1 + total_mass() / engine_data->mass_breakpoint);
+    int ret = mass / engine_data->power_output; // Fuel per parsec
+    ret /= (1 + mass / engine_data->mass_breakpoint);
     return ret;
   }
   return -1;
 }
-  
 
 int Ship::travel_time(int distance)
 {
@@ -315,6 +324,121 @@ int Ship::full_crew()
   return ret;
 }
 
+int Ship::armor()
+{
+  int ret = 0, count = 0;
+  for (int i = 0; i < parts.size(); i++) {
+    if (parts[i].type->is_armor()) {
+      SP_armor* armor_data = static_cast<SP_armor*>(parts[i].type);
+      int amt = (armor_data->physical * armor_data->max_hp) / parts[i].hp;
+      if (count < amt) {
+        ret += amt - count;
+      } else if (amt > 0) {
+        ret++;
+      }
+    }
+  }
+  if (ret > 120) {
+    return 120;
+  }
+  return ret;
+}
+
+std::string Ship::armor_meter()
+{
+  std::stringstream ret;
+  int armor_amt = armor(); 
+  int blocks = (armor_amt + 9) / 10; // Round up to the nearest block
+  if (armor_amt == 0) {
+    return "<c=red>____________<c=/>";
+  }
+  if (blocks <= 2) {
+    ret << "<c=red>";
+  } else if (blocks <= 4) {
+    ret << "<c=magenta>";
+  } else {
+    ret << "<c=cyan>";
+  }
+  for (int i = 0; i < 12; i++) {
+    if (i < blocks) {
+      ret << '#';
+    } else if (i == blocks) {
+      ret << "<c=ltcyan>.";
+    } else {
+      ret << '.';
+    }
+  }
+  return ret.str();
+}
+
+int Ship::shields()
+{
+  int ret = 0, count = 0;
+  for (int i = 0; i < parts.size(); i++) {
+    if (parts[i].type->is_armor()) {
+      SP_armor* armor_data = static_cast<SP_armor*>(parts[i].type);
+      int amt = (armor_data->energy * parts[i].charge) / 100;
+      if (count < amt) {
+        ret += amt - count;
+      } else if (amt > 0) {
+        ret++;
+      }
+    }
+  }
+  if (ret > 120) {
+    return 120;
+  }
+  return ret;
+}
+
+std::string Ship::shields_meter()
+{
+  std::stringstream ret;
+  int shields_amt = shields(); 
+  int blocks = (shields_amt + 9) / 10; // Round up to the nearest block
+  if (shields_amt == 0) {
+    return "<c=red>____________<c=/>";
+  }
+  if (blocks <= 2) {
+    ret << "<c=red>";
+  } else if (blocks <= 4) {
+    ret << "<c=yellow>";
+  } else {
+    ret << "<c=green>";
+  }
+  for (int i = 0; i < 12; i++) {
+    if (i < blocks) {
+      ret << '#';
+    } else if (i == blocks) {
+      ret << "<c=ltgreen>.";
+    } else {
+      ret << '.';
+    }
+  }
+  return ret.str();
+}
+
+std::string Ship::weapon_symbols()
+{
+  std::stringstream ret;
+  for (int i = 0; i < parts.size(); i++) {
+    if (parts[i].type->is_weapon()) {
+      SP_weapon* weap_data = static_cast<SP_weapon*>(parts[i].type);
+      glyph sym = weap_data->symbol;
+      int hp_percent = (parts[i].hp * 100) / weap_data->max_hp;
+      if (hp_percent < 20) {
+        sym.bg = c_red;
+      } else if (hp_percent < 100) {
+        sym.bg = c_brown;
+      }
+      if (hp_percent != 0) {
+        ret << sym.text_formatted();
+      }
+    }
+  }
+  return ret.str();
+}
+
 std::string Ship::morale_level_name()
 {
   if (crew_amount <= 0) {
@@ -371,7 +495,7 @@ std::string Ship_part::hp_color_tag()
   if (percent < 100) {
     return "<c=green>";
   }
-  return "<c=white>"
+  return "<c=white>";
 }
 
 int Ship_part::sell_price()

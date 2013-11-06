@@ -73,7 +73,7 @@ class Window
   int sizex() { return xdim; };
   int sizey() { return ydim; };
 // The three essential output functions
-  void putch(int x, int y, nc_color fg, nc_color, long sym);
+  void putch(int x, int y, nc_color fg, nc_color bg, long sym);
   void putglyph(int x, int y, glyph gl);
 
 // Putstr places a string (unless we're designated as tiles-only)

@@ -9,26 +9,28 @@
   GOOD_DATA.push_back( \
     new Good_datum(name, min, max, volume, mass) )
 
-#define NEW_SP_WEAP(name, hp, weight, cost, damage, fire_rate, acc) \
+#define NEW_SP_WEAP(name, hp, weight, cost, crew, sym, fg, damage, fire_rate,\
+                    acc) \
   PARTS.push_back( \
-    new SP_weapon(name, hp, weight, cost, damage, fire_rate, acc) )
+    new SP_weapon(name, hp, weight, cost, crew, glyph(sym, fg, c_black),\
+                  damage, fire_rate, acc) )
 
-#define NEW_SP_ARMOR(name, hp, weight, cost, physical, energy )\
+#define NEW_SP_ARMOR(name, hp, weight, cost, crew, physical, energy )\
   PARTS.push_back( \
-    new SP_armor (name, hp, weight, cost, physical, energy ) )
+    new SP_armor (name, hp, weight, cost, crew, physical, energy ) )
 
-#define NEW_SP_DEVICE(name, hp, weight, cost)\
+#define NEW_SP_DEVICE(name, hp, weight, cost, crew)\
   PARTS.push_back( \
-    new SP_device(name, hp, weight, cost) )
+    new SP_device(name, hp, weight, cost, crew) )
 
-#define NEW_SP_CARGO(name, hp, weight, cost, bunks, volume)\
+#define NEW_SP_CARGO(name, hp, weight, cost, crew, bunks, volume)\
   PARTS.push_back( \
-    new SP_cargo(name, hp, weight, cost, bunks, volume) )
+    new SP_cargo(name, hp, weight, cost, crew, bunks, volume) )
 
-#define NEW_SP_ENGINE(name, hp, weight, cost, fuel, power_output,\
+#define NEW_SP_ENGINE(name, hp, weight, cost, crew, fuel, power_output,\
                       mass_breakpoint, interstellar_speed, evasive_speed)\
   PARTS.push_back( \
-    new SP_engine(name, hp, weight, cost, fuel, power_output,\
+    new SP_engine(name, hp, weight, cost, crew, fuel, power_output,\
                   mass_breakpoint, interstellar_speed, evasive_speed) )
 
 void define_goods()
@@ -66,12 +68,18 @@ void define_parts()
   PARTS.push_back( new Ship_part_type() ); // Null
 
 //              Name              HP  Mass  Cost Crew
-  NEW_SP_WEAP   ("plasma cannon", 10,  60, 12000,  2, 2, 1, 0);
+  NEW_SP_WEAP   ("plasma cannon", 10,  60, 12000,  2,
+//  Sym  FG     Dam Rate Acc
+    '^', c_cyan,  2,  1,  0);
 
 //              Name              HP  Mass  Cost Crew
-  NEW_SP_ARMOR  ("armor plating", 50, 100,  8000,  0, 10, 0);
+  NEW_SP_ARMOR  ("armor plating", 50, 100,  8000,  0,
+//  Phys energy
+      20, 0);
 
-  NEW_SP_ARMOR  ("basic shield",  10,  25, 10000,  2, 0, 5);
+  NEW_SP_ARMOR  ("basic shield",  10,  25, 10000,  2,
+//  Phys energy
+       0, 10);
 
 //              Name              HP  Mass  Cost Crew
   NEW_SP_DEVICE ("test device",    1,   1,  3000,  2);
@@ -85,7 +93,7 @@ void define_parts()
 //              Name              HP  Mass  Cost Crew
   NEW_SP_ENGINE ("TX-1 Engine",   15,  75, 14000,  2,
 //              FUEL           POWER  MBP Speed Evade
-                GOOD_SOLIDFUEL,  20,  500, 50,     10);
+                GOOD_SOLIDFUEL,  20,  500, 50,    100);
 
 }
 

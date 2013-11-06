@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "goods.h"
+#include "glyph.h"
 
 struct Ship_part_type
 {
@@ -26,10 +27,12 @@ struct SP_weapon : public Ship_part_type
 {
   SP_weapon(std::string N = "NULL", int MHP = 0, int M = 0, int C = 0,
                                     int CR = 0,
-                                    int D = 0, int FR = 0, int A = 0) :
+                                    glyph S = glyph(), int D = 0, int FR = 0,
+                                    int A = 0) :
     Ship_part_type(N, MHP, M, C, CR), 
-    damage (D), fire_rate (FR), accuracy (A) {};
+    symbol (S), damage (D), fire_rate (FR), accuracy (A) {};
   virtual bool is_weapon()  { return true; }
+  glyph symbol;
   int damage;
   int fire_rate;
   int accuracy;
@@ -104,6 +107,7 @@ struct Ship_part
   Ship_part_type *type;
   int hp;
   int charge;
+  int emp;
 
   Ship_part(Ship_part_type *T = NULL);
 
@@ -174,6 +178,12 @@ struct Ship
 
   int skeleton_crew();
   int full_crew();
+
+  int armor();
+  std::string armor_meter();
+  int shields();
+  std::string shields_meter();
+  std::string weapon_symbols();
   
   std::string morale_level_name();
 };

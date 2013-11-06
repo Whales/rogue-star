@@ -54,6 +54,7 @@ int main()
  ele_drawing clipboard;
 
  bool blink = true;
+ bool show_coord = false;
  int posx = 0, posy = 0, bufx = -1, bufy = -1;
  pen = glyph('x', c_white, c_black);
 
@@ -90,6 +91,12 @@ while (!really_done) {
   if (dm == DM_BOX || dm == DM_ELEMENT || dm == DM_DELETE || dm == DM_FIXLINES)
    temp_box(w, bufx, bufy, posx, posy);
 
+
+  if (show_coord) {
+    std::stringstream coord_ss;
+    coord_ss << posx << "," << posy;
+    w.putstr(74, 23, c_magenta, c_black, coord_ss.str());
+  }
   w.refresh();
   timeout((blink ? 300 : 150));
   long ch = getch();
@@ -201,6 +208,9 @@ while (!really_done) {
 
     } else if (ch == '?') {
      help();
+
+    } else if (ch == '!') {
+     show_coord = !show_coord;
 
     } else if (ch == '-') {
      elements_window(edited);
@@ -1279,6 +1289,7 @@ d     delete a range (by drawing a square)\n\
 \"     Set pen symbol to line drawings\n\
 c     Copy symbol & colors under pen\n\
 []    Set foreground / background color\n\
+!     Toggle coordinates display\
 ");
 }
 

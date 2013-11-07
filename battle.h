@@ -48,12 +48,13 @@ struct Combat_ship
   Ship ship;
   Crew_task crew;
   Engine_task engine;
+  int range;
 // TODO: Morale?  Objective?
 };
 
 struct Battle
 {
-  std::vector<Ship> enemies;
+  std::vector<Combat_ship> enemies;
   std::vector<std::string> messages;
 
   Crew_task crew;

@@ -123,7 +123,40 @@ void Battle::main_loop()
 
 void Battle::update_ranges()
 {
-  
+  switch (engine) {
+    case ENGINE_FLEE:
+      for (int i = 0; i < enemies.size(); i++) {
+        enemies[i].range += PLR.combat_speed();
+      }
+      break;
+    case ENGINE_CLOSE:
+      for (int i = 0; i < enemies.size(); i++) {
+        if (i == target) {
+          enemies[i].range -= PLR.combat_speed();
+        } else { // We're probably getting close anyway...
+          enemies[i].range -= rng(0, PLR.combat_speed());
+        }
+        if (enemies[i].range < 0) {
+          enemies[i].range = 0;
+        }
+      }
+      break;
+  }
+
+  for (int i = 0; i < enemies.size(); i++) {
+    switch (enemies[i].engine) {
+      case ENGINE_FLEE:
+        enemies[i].range += enemies[i].ship.combat_speed();
+        break;
+      case ENGINE_CLOSE:
+        enemies[i].range -= enemies[i].ship.combat_speed();
+        break;
+    }
+    if (enemies[i].range < 0) {
+      enemies[i].range = 0;
+    }
+  }
+}
 
 void Battle::player_turn()
 {
@@ -140,6 +173,8 @@ void Battle::player_turn()
           mess_text << "You fire your " << weap_data->name << " at " <<
                        enemies[target].ship.name << "!";
           add_message(mess_text.str());
+
+          
       
 }
 

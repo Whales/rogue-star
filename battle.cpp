@@ -49,6 +49,7 @@ void Battle::main_loop()
 
     for (int i = 0; i < enemies.size() && i < 3; i++) {
       std::stringstream enemy_num_ss;
+      Ship* ship = &(enemies[i].ship);
       enemy_num_ss << (i + 1);
       std::string num = enemy_num_ss.str();
       std::string ele_enemy   = "text_enemy_"         + num,
@@ -56,11 +57,11 @@ void Battle::main_loop()
                   ele_shields = "text_enemy_shields_" + num,
                   ele_engines = "text_enemy_engines_" + num,
                   ele_weapons = "text_enemy_weapons_" + num;
-      i_battle.set_data(ele_enemy,   enemies[i].name            );
-      i_battle.set_data(ele_armor,   enemies[i].armor_meter()   );
-      i_battle.set_data(ele_shields, enemies[i].shields_meter() );
-      i_battle.set_data(ele_engines, enemies[i].engine_meter()  );
-      i_battle.set_data(ele_weapons, enemies[i].weapon_symbols());
+      i_battle.set_data(ele_enemy,   ship->name            );
+      i_battle.set_data(ele_armor,   ship->armor_meter()   );
+      i_battle.set_data(ele_shields, ship->shields_meter() );
+      i_battle.set_data(ele_engines, ship->engine_meter()  );
+      i_battle.set_data(ele_weapons, ship->weapon_symbols());
     }
     i_battle.draw(&w_battle);
 // We do these manual drawing functions after drawing the interface, since they
@@ -105,6 +106,7 @@ void Battle::main_loop()
     long ch = getch();
     if (ch == ' ' || ch == '\n') {
 // TODO: Confirm if no target, confirm if no crew task, etc.
+      update_ranges();
       player_turn();
       enemy_turn();
     } else if (ch == 'c' || ch == 'C') {
@@ -119,6 +121,10 @@ void Battle::main_loop()
   }
 }
 
+void Battle::update_ranges()
+{
+  
+
 void Battle::player_turn()
 {
 // First, fire guns
@@ -132,7 +138,7 @@ void Battle::player_turn()
           PLR.parts[i].charge = 0;
           std::stringstream mess_text;
           mess_text << "You fire your " << weap_data->name << " at " <<
-                       enemies[target].name << "!";
+                       enemies[target].ship.name << "!";
           add_message(mess_text.str());
       
 }

@@ -43,6 +43,14 @@ const std::string Engine_task_name[NUM_ENGINE_TASKS] = {
 "Jumping"
 };
 
+struct Combat_ship
+{
+  Ship ship;
+  Crew_task crew;
+  Engine_task engine;
+// TODO: Morale?  Objective?
+};
+
 struct Battle
 {
   std::vector<Ship> enemies;
@@ -57,8 +65,9 @@ struct Battle
   ~Battle();
 // In-battle functions
   void main_loop();
-  void enemy_turn();
+  void update_ranges();
   void player_turn();
+  void enemy_turn();
   void add_message(std::string message);
   void set_crew_task();
   void set_engine_task();

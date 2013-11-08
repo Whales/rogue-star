@@ -3,6 +3,12 @@
 #include "window.h"
 #include <sstream>
 
+/* TODO: Large parts of this file need refactoring.  For example, the code for
+ * the player firing a weapon at an enemy, and the code for an enemy firing a
+ * weapon at the player, are completely seperate.  They should be a single
+ * function.
+ */
+
 Battle::Battle()
 {
   crew   = CREW_NULL;
@@ -123,18 +129,23 @@ void Battle::main_loop()
 
 void Battle::update_ranges()
 {
+  int speed = PLR.combat_speed();
+  if (crew == CREW_ENGINE) {
+    speed *= 1.1;
+  }
   switch (engine) {
     case ENGINE_FLEE:
       for (int i = 0; i < enemies.size(); i++) {
-        enemies[i].range += PLR.combat_speed();
+        enemies[i].range += speed;
       }
       break;
+
     case ENGINE_CLOSE:
       for (int i = 0; i < enemies.size(); i++) {
         if (i == target) {
-          enemies[i].range -= PLR.combat_speed();
+          enemies[i].range -= speed;
         } else { // We're probably getting close anyway...
-          enemies[i].range -= rng(0, PLR.combat_speed());
+          enemies[i].range -= rng(0, speed);
         }
         if (enemies[i].range < 0) {
           enemies[i].range = 0;
@@ -144,14 +155,22 @@ void Battle::update_ranges()
   }
 
   for (int i = 0; i < enemies.size(); i++) {
+    speed = enemies[i].ship.combat_speed();
+    if (enemies[i].crew == CREW_ENGINE) {
+      speed *= 1.1;
+    }
+
     switch (enemies[i].engine) {
+
       case ENGINE_FLEE:
-        enemies[i].range += enemies[i].ship.combat_speed();
+        enemies[i].range += speed;
         break;
+
       case ENGINE_CLOSE:
-        enemies[i].range -= enemies[i].ship.combat_speed();
+        enemies[i].range -= speed;
         break;
     }
+
     if (enemies[i].range < 0) {
       enemies[i].range = 0;
     }
@@ -161,9 +180,10 @@ void Battle::update_ranges()
 void Battle::player_turn()
 {
 // First, fire guns
+// TODO: Implment weapon ranges
   if (target >= 0 && target < enemies.size()) {
     for (int i = 0; i < PLR.parts.size(); i++) {
-      if (PLR.parts[i].type->is_weapon()) {
+      if (PLR.parts[i].type->is_weapon() && PLR.parts[i].usable()) {
         SP_weapon* weap_data = static_cast<SP_weapon*>(PLR.parts[i].type);
         if (PLR.parts[i].charge < weap_data->fire_rate) {
           PLR.parts[i].charge++;
@@ -173,13 +193,119 @@ void Battle::player_turn()
           mess_text << "You fire your " << weap_data->name << " at " <<
                        enemies[target].ship.name << "!";
           add_message(mess_text.str());
+          int plr_roll = (weap_data->accuracy * PLR.parts[i].hp) /
+                          weap_data->max_hp;
+          if (crew == CREW_WEAPONS) {
+            plr_roll++; // TODO: More?
+          }
+          int tar_roll = enemies[i].ship.evasion() + enemies[i].range / 250;
+          if (rng(0, plr_roll) > rng(0, tar_roll)) {
+            hit_with_weapon(enemies[i].ship, PLR.parts[i]);
+          } else {
+            add_message("You miss!");
+          }
+        }
+      }
+    }
+  }
 
-          
-      
+// Next, have the crew do whatever they do
+// TODO: When we eventually get Officers it'd be nice to use their talents here
+// TODO: Also modify based on how much crew we have (extras?)
+  switch (crew) {
+
+    case CREW_REPAIR:
+      for (int i = 0; i < PLR.parts.size(); i++) {
+        if (PLR.parts[i].hp < PLR.parts[i].type->max_hp) {
+          PLR.parts[i].hp++;
+        }
+      }
+      break;
+
+    case CREW_EMP_REPAIR:
+      for (int i = 0; i < PLR.parts.size(); i++) {
+        if (PLR.parts[i].emp > 0) {
+          PLR.parts[i].emp--;
+        }
+      }
+      break;
+  }
+
 }
 
 void Battle::enemy_turn()
 {
+// First, fire guns
+// TODO: Implment weapon ranges
+  for (int i = 0; i < enemies.size() && i < 3; i++) {
+    Ship* enship = &(enemies[i].ship);
+    for (int i = 0; i < enship->parts.size(); i++) {
+      if (enship->parts[i].type->is_weapon() && enship->parts[i].usable()) {
+        SP_weapon* weap_data = static_cast<SP_weapon*>(enship->parts[i].type);
+        if (enship->parts[i].charge < weap_data->fire_rate) {
+          enship->parts[i].charge++;
+        } else {
+          enship->parts[i].charge = 0;
+          std::stringstream mess_text;
+          mess_text << enship->name << "fires its " << weap_data->name << "!";
+          add_message(mess_text.str());
+          int plr_roll = (weap_data->accuracy * enship->parts[i].hp) /
+                          weap_data->max_hp;
+          if (crew == CREW_WEAPONS) {
+            plr_roll++; // TODO: More?
+          }
+          int tar_roll = PLR.evasion() + enemies[i].range / 250;
+          if (rng(0, plr_roll) > rng(0, tar_roll)) {
+            hit_with_weapon(PLR, enship->parts[i]);
+          } else {
+            add_message("You miss!");
+          }
+        }
+      }
+    }
+  
+  // Next, have the crew do whatever they do
+  // TODO: Modify based on how much crew we have (extras?)
+    switch (enemies[i].crew) {
+  
+      case CREW_REPAIR:
+        for (int i = 0; i < enship->parts.size(); i++) {
+          if (enship->parts[i].hp < enship->parts[i].type->max_hp) {
+            enship->parts[i].hp++;
+          }
+        }
+        break;
+  
+      case CREW_EMP_REPAIR:
+        for (int i = 0; i < enship->parts.size(); i++) {
+          if (enship->parts[i].emp > 0) {
+            enship->parts[i].emp--;
+          }
+        }
+        break;
+    }
+  }
+
+}
+
+void Battle::hit_with_weapon(Ship &ship, Ship_part &weapon)
+{
+  if (!weapon.type->is_weapon()) {
+    debugmsg("Ran hit_with_weapon using %s as a weapon!",
+             weap.type->name.c_str());
+    return;
+  }
+
+  SP_weapon* weap_data = static_cast<SP_weapon*>(weapon.type);
+  int damage = weap_data.damage;
+  damage = rng(damage / 2, damage);
+
+  int hit = rng(0, ship.parts.size() + 10);
+  if (hit >= ship.parts.size()) { // We hit the hull, not any particular part
+    ship.hit_hull(damage);
+  } else {
+    ship.hit_part(hit, damage);
+  }
 }
 
 void Battle::add_message(std::string message)

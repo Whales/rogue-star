@@ -116,6 +116,8 @@ struct Ship_part
 
   int sell_price();
 
+  bool usable();
+
   void repair();
 };
 
@@ -167,6 +169,7 @@ struct Ship
 
   int speed();
   int combat_speed();
+  int evasion();
   int fuel_economy();
 
   int travel_time(int distance);
@@ -186,6 +189,9 @@ struct Ship
   std::string armor_meter();
   std::string shields_meter();
   std::string engine_meter();
+
+  void hit_hull(int damage);
+  void hit_part(int index, int damage);
   
   std::string morale_level_name();
 };

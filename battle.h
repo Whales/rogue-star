@@ -69,6 +69,8 @@ struct Battle
   void update_ranges();
   void player_turn();
   void enemy_turn();
+  void hit_with_weapon(Ship &ship, Ship_part &weapon);
+// Interface functions
   void add_message(std::string message);
   void set_crew_task();
   void set_engine_task();

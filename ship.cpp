@@ -194,7 +194,12 @@ int Ship::combat_speed()
   }
   return 0;
 }
-    
+
+int Ship::evasion()
+{
+  return combat_speed() / 10;
+}
+
 int Ship::fuel_economy()
 {
   Ship_part* engine = get_engine();
@@ -472,6 +477,66 @@ std::string Ship::engine_meter()
   return ret.str();
 }
 
+void Ship::hit_hull(int damage)
+{
+// Check for shields
+  for (int i = 0; i < parts.size(); i++) {
+    if (parts[i].type->is_armor()) {
+      SP_armor* armor_data = static_cast<SP_armor*>(parts[i].type);
+      if (armor_data->energy > 0) {
+        int amt = (parts[i].charge * armor_data->energy) / 100;
+        int charge_per_armor = 100 / armor_data->energy;
+        if (amt > damage) {
+          parts[i].charge -= charge_per_armor * damage;
+          return;
+        } else {
+          damage -= parts[i].charge / charge_per_armor;
+          parts[i].charge = 0;
+        }
+      }
+    }
+  }
+// If shields didn't absorb it all, check for armor
+  for (int i = 0; i < parts.size(); i++) {
+    if (parts[i].type->is_armor()) {
+      SP_armor* armor_data = static_cast<SP_armor*>(parts[i].type);
+      if (armor_data->physical > 0) {
+        int amt = (parts[i].hp * armor_data->physical) / armor_data->max_hp;
+        int hp_per_armor = armor_data->max_hp / armor_data->physical;
+        if (amt > damage) {
+          parts[i].hp -= hp_per_armor * damage;
+          return;
+        } else {
+          damage -= parts[i].hp / hp_per_armor;
+          parts[i].hp = 0;
+        }
+      }
+    }
+  }
+// Finally, if there's any damage left, it kills some crew!
+  crew -= rng(1, damage);
+  if (crew < 0) {
+    crew = 0;
+  }
+}
+
+void Ship::hit_part(int index, int damage)
+{
+  if (index < 0 || index >= parts.size()) {
+    debugmsg("hit_part index = %d, parts.size() = %d", index, parts.size());
+    return;
+  }
+  if (parts[i].hp < damage) { // Chance to destroy the part
+    if (rng(1, damage) > parts[i].hp) {
+      parts.erase( parts.begin() + i );
+    } else {
+      parts[i].hp = 0;
+    }
+  } else {
+    parts[i].hp -= damage;
+  }
+}
+
 std::string Ship::morale_level_name()
 {
   if (crew_amount <= 0) {
@@ -543,12 +608,18 @@ int Ship_part::sell_price()
   return ret;
 }
 
+bool Ship_part::usable()
+{
+  return (hp > 0 && emp == 0);
+}
+
 void Ship_part::repair()
 {
   if (!type) {
     return;
   }
   hp = type->max_hp;
+  emp = 0;
 }
 
 Manifest::Manifest()

@@ -1,6 +1,7 @@
 #include "battle.h"
 #include "cuss.h"
 #include "window.h"
+#include "rng.h"
 #include <sstream>
 
 /* TODO: Large parts of this file need refactoring.  For example, the code for
@@ -18,6 +19,24 @@ Battle::Battle()
 
 Battle::~Battle()
 {
+}
+
+void Battle::add_enemy(Ship enemy)
+{
+  Combat_ship tmp;
+  tmp.ship   = enemy;
+  tmp.crew   = CREW_REPAIR;
+  tmp.engine = ENGINE_CLOSE;
+  tmp.range  = 1000;
+  enemies.push_back(tmp);
+}
+
+void Battle::init()
+{
+  PLR.prep_for_battle();
+  for (int i = 0; i < enemies.size(); i++) {
+    enemies[i].ship.prep_for_battle();
+  }
 }
 
 void Battle::main_loop()
@@ -51,7 +70,11 @@ void Battle::main_loop()
     i_battle.set_data("list_player_parts_hp", player_parts_hp);
     i_battle.set_data("text_crew_status",     Crew_task_name[crew]);
     i_battle.set_data("text_engine_status",   Engine_task_name[engine]);
-    i_battle.set_data("text_messages",        messages);
+    if (!messages.empty()) {
+      i_battle.add_data("text_messages",        messages);
+      i_battle.add_data("text_messages", messages.size() - 5); // to bottom
+      messages.clear();
+    }
 
     for (int i = 0; i < enemies.size() && i < 3; i++) {
       std::stringstream enemy_num_ss;
@@ -62,11 +85,15 @@ void Battle::main_loop()
                   ele_armor   = "text_enemy_armor_"   + num,
                   ele_shields = "text_enemy_shields_" + num,
                   ele_engines = "text_enemy_engines_" + num,
+                  ele_speed   = "num_enemy_speed_"    + num,
+                  ele_range   = "num_enemy_range_"    + num,
                   ele_weapons = "text_enemy_weapons_" + num;
       i_battle.set_data(ele_enemy,   ship->name            );
       i_battle.set_data(ele_armor,   ship->armor_meter()   );
       i_battle.set_data(ele_shields, ship->shields_meter() );
       i_battle.set_data(ele_engines, ship->engine_meter()  );
+      i_battle.set_data(ele_speed,   ship->combat_speed()  );
+      i_battle.set_data(ele_range,   enemies[i].range      );
       i_battle.set_data(ele_weapons, ship->weapon_symbols());
     }
     i_battle.draw(&w_battle);
@@ -108,8 +135,11 @@ void Battle::main_loop()
     if (enemies.size() < 2) {
       w_battle.clear_area(56,  8, 79, 14);
     }
+
+    w_battle.refresh();
         
     long ch = getch();
+
     if (ch == ' ' || ch == '\n') {
 // TODO: Confirm if no target, confirm if no crew task, etc.
       update_ranges();
@@ -123,6 +153,8 @@ void Battle::main_loop()
       set_target(w_battle);
     } else if (ch == '!') {
       display_weapon_symbols();
+    } else {
+      i_battle.handle_keypress(ch);
     }
   }
 }
@@ -198,9 +230,10 @@ void Battle::player_turn()
           if (crew == CREW_WEAPONS) {
             plr_roll++; // TODO: More?
           }
-          int tar_roll = enemies[i].ship.evasion() + enemies[i].range / 250;
-          if (rng(0, plr_roll) > rng(0, tar_roll)) {
-            hit_with_weapon(enemies[i].ship, PLR.parts[i]);
+          int tar_roll = enemies[target].ship.evasion() +
+                         enemies[target].range / 250;
+          if (rng(0, plr_roll) >= rng(0, tar_roll)) {
+            hit_with_weapon(enemies[target].ship, PLR.parts[i]);
           } else {
             add_message("You miss!");
           }
@@ -231,14 +264,24 @@ void Battle::player_turn()
       break;
   }
 
+// Finally, recharge shields
+  for (int i = 0; i < PLR.parts.size(); i++) {
+    if (PLR.parts[i].type->is_armor()) {
+      SP_armor* armor_data = static_cast<SP_armor*>(PLR.parts[i].type);
+      if (armor_data->energy > 0 && PLR.parts[i].charge < 100) {
+        PLR.parts[i].charge++;
+      }
+    }
+  }
+
 }
 
 void Battle::enemy_turn()
 {
 // First, fire guns
 // TODO: Implment weapon ranges
-  for (int i = 0; i < enemies.size() && i < 3; i++) {
-    Ship* enship = &(enemies[i].ship);
+  for (int n = 0; n < enemies.size() && n < 3; n++) {
+    Ship* enship = &(enemies[n].ship);
     for (int i = 0; i < enship->parts.size(); i++) {
       if (enship->parts[i].type->is_weapon() && enship->parts[i].usable()) {
         SP_weapon* weap_data = static_cast<SP_weapon*>(enship->parts[i].type);
@@ -247,18 +290,18 @@ void Battle::enemy_turn()
         } else {
           enship->parts[i].charge = 0;
           std::stringstream mess_text;
-          mess_text << enship->name << "fires its " << weap_data->name << "!";
+          mess_text << enship->name << " fires its " << weap_data->name << "!";
           add_message(mess_text.str());
           int plr_roll = (weap_data->accuracy * enship->parts[i].hp) /
                           weap_data->max_hp;
           if (crew == CREW_WEAPONS) {
             plr_roll++; // TODO: More?
           }
-          int tar_roll = PLR.evasion() + enemies[i].range / 250;
-          if (rng(0, plr_roll) > rng(0, tar_roll)) {
+          int tar_roll = PLR.evasion() + enemies[n].range / 250;
+          if (rng(0, plr_roll) >= rng(0, tar_roll)) {
             hit_with_weapon(PLR, enship->parts[i]);
           } else {
-            add_message("You miss!");
+            add_message("They miss!");
           }
         }
       }
@@ -266,7 +309,7 @@ void Battle::enemy_turn()
   
   // Next, have the crew do whatever they do
   // TODO: Modify based on how much crew we have (extras?)
-    switch (enemies[i].crew) {
+    switch (enemies[n].crew) {
   
       case CREW_REPAIR:
         for (int i = 0; i < enship->parts.size(); i++) {
@@ -284,6 +327,15 @@ void Battle::enemy_turn()
         }
         break;
     }
+// Finally, recharge shields
+    for (int i = 0; i < enship->parts.size(); i++) {
+      if (enship->parts[i].type->is_armor()) {
+        SP_armor* armor_data = static_cast<SP_armor*>(enship->parts[i].type);
+        if (armor_data->energy > 0 && enship->parts[i].charge < 100) {
+          enship->parts[i].charge++;
+        }
+      }
+    }
   }
 
 }
@@ -292,19 +344,24 @@ void Battle::hit_with_weapon(Ship &ship, Ship_part &weapon)
 {
   if (!weapon.type->is_weapon()) {
     debugmsg("Ran hit_with_weapon using %s as a weapon!",
-             weap.type->name.c_str());
+             weapon.type->name.c_str());
     return;
   }
 
+  std::string You  = (&ship == &PLR ? "They" : "You"  ),
+              your = (&ship == &PLR ? "your" : "their");
+
   SP_weapon* weap_data = static_cast<SP_weapon*>(weapon.type);
-  int damage = weap_data.damage;
+  int damage = weap_data->damage;
   damage = rng(damage / 2, damage);
 
   int hit = rng(0, ship.parts.size() + 10);
   if (hit >= ship.parts.size()) { // We hit the hull, not any particular part
     ship.hit_hull(damage);
+    add_message( You + " hit " + your + " hull!" );
   } else {
     ship.hit_part(hit, damage);
+    add_message( You + " hit " + your + " " + ship.parts[hit].type->name + "!");
   }
 }
 
@@ -351,7 +408,7 @@ void Battle::set_engine_task()
     options.push_back( Engine_task_name[i] );
   }
   int choice = menu_vec("Engine task:", options);
-  engine = Engine_task(choice);
+  engine = Engine_task(choice + 1); // + 1 since we started with 1 above
 }
 
 void Battle::display_weapon_symbols()

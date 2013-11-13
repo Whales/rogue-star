@@ -31,6 +31,9 @@ void Ship::init()
   add_part(SP_CARGO_BAY);
   add_part(SP_BERTH);
   add_part(SP_ENGINE);
+  add_part(SP_PLASMA);
+  add_part(SP_PLATING);
+  add_part(SP_SHIELD);
   get_engine()->charge = 1000;
 
   posx = PLANETS[0].posx;
@@ -335,7 +338,8 @@ int Ship::armor()
   for (int i = 0; i < parts.size(); i++) {
     if (parts[i].type->is_armor()) {
       SP_armor* armor_data = static_cast<SP_armor*>(parts[i].type);
-      int amt = (armor_data->physical * armor_data->max_hp) / parts[i].hp;
+      int amt = (armor_data->physical * parts[i].hp) / armor_data->max_hp;
+// After the first, subsequent pieces of armor provide diminishing returns
       if (count < amt) {
         ret += amt - count;
       } else if (amt > 0) {
@@ -477,6 +481,18 @@ std::string Ship::engine_meter()
   return ret.str();
 }
 
+void Ship::prep_for_battle()
+{
+  for (int i = 0; i < parts.size(); i++) {
+    if (parts[i].type->is_weapon()) {
+      SP_weapon* weap_data = static_cast<SP_weapon*>(parts[i].type);
+      parts[i].charge = weap_data->fire_rate;
+    } else if (parts[i].type->is_armor()) {
+      parts[i].charge = 100;
+    }
+  }
+}
+
 void Ship::hit_hull(int damage)
 {
 // Check for shields
@@ -514,9 +530,9 @@ void Ship::hit_hull(int damage)
     }
   }
 // Finally, if there's any damage left, it kills some crew!
-  crew -= rng(1, damage);
-  if (crew < 0) {
-    crew = 0;
+  crew_amount -= rng(1, damage);
+  if (crew_amount < 0) {
+    crew_amount = 0;
   }
 }
 
@@ -526,14 +542,33 @@ void Ship::hit_part(int index, int damage)
     debugmsg("hit_part index = %d, parts.size() = %d", index, parts.size());
     return;
   }
-  if (parts[i].hp < damage) { // Chance to destroy the part
-    if (rng(1, damage) > parts[i].hp) {
-      parts.erase( parts.begin() + i );
+// Shields absorb hits to parts!
+// Check for shields
+  for (int i = 0; i < parts.size(); i++) {
+    if (parts[i].type->is_armor()) {
+      SP_armor* armor_data = static_cast<SP_armor*>(parts[i].type);
+      if (armor_data->energy > 0) {
+        int amt = (parts[i].charge * armor_data->energy) / 100;
+        int charge_per_armor = 100 / armor_data->energy;
+        if (amt > damage) {
+          parts[i].charge -= charge_per_armor * damage;
+          return;
+        } else {
+          damage -= parts[i].charge / charge_per_armor;
+          parts[i].charge = 0;
+        }
+      }
+    }
+  }
+
+  if (parts[index].hp < damage) { // Chance to destroy the part
+    if (rng(1, damage) > parts[index].hp) {
+      parts.erase( parts.begin() + index );
     } else {
-      parts[i].hp = 0;
+      parts[index].hp = 0;
     }
   } else {
-    parts[i].hp -= damage;
+    parts[index].hp -= damage;
   }
 }
 
@@ -566,9 +601,12 @@ std::string Ship::morale_level_name()
 Ship_part::Ship_part(Ship_part_type *T)
 {
   charge = 0;
+  emp = 0;
   if (T) {
     type = T;
     hp = type->max_hp;
+  } else {
+    debugmsg("Created NULL part!");
   }
 }
 

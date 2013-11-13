@@ -13,7 +13,7 @@ i_battle </> 80 24 34 1 BG </> 0 0 80 24 0 0 1180 -1 0 32 0 0 -1 1 32 0 0 -1 2 3
 2 text_messages </> 1 13 46 10 1 0  </>
 2 text_enemy_1 </> 58 0 20 1 0 2  </>
 2 text_enemy_armor_1 </> 66 1 13 1 0 0  </>
-2 text_enemy_shield_1 </> 66 2 13 1 0 0  </>
+2 text_enemy_shields_1 </> 66 2 13 1 0 0  </>
 2 text_enemy_engines_1 </> 66 3 13 1 0 0  </>
 2 text_enemy_weapons_1 </> 66 5 13 1 0 0  </>
 5 num_enemy_speed_1 </> 64 4 4 1 0 1 0

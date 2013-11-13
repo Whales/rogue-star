@@ -6,6 +6,7 @@
 #include "setup.h"
 #include "data.h"
 #include "globals.h"
+#include "battle.h"
 
 int main()
 {
@@ -18,6 +19,23 @@ int main()
   define_events();
   PLR.init();
 
+  PLR.add_part(SP_PLATING);
+  PLR.add_part(SP_PLATING);
+  PLR.add_part(SP_PLATING);
+  PLR.add_part(SP_PLATING);
+  PLR.add_part(SP_SHIELD);
+  PLR.add_part(SP_SHIELD);
+  PLR.add_part(SP_SHIELD);
+
+  Ship enemy;
+  enemy.init();
+
+  Battle test;
+  test.add_enemy(enemy);
+  test.add_enemy(enemy);
+  test.init();
+
+  test.main_loop();
 
   main_screen();
 

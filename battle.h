@@ -64,6 +64,9 @@ struct Battle
 // Constructor/Destructor
   Battle();
   ~Battle();
+// Init functions
+  void add_enemy(Ship enemy);
+  void init();
 // In-battle functions
   void main_loop();
   void update_ranges();
@@ -76,8 +79,6 @@ struct Battle
   void set_engine_task();
   void set_target(Window &w_battle);
   void display_weapon_symbols();
-// Init functions
-  void add_enemy(Ship enemy);
 };
 
 #endif

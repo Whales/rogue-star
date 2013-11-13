@@ -190,6 +190,7 @@ struct Ship
   std::string shields_meter();
   std::string engine_meter();
 
+  void prep_for_battle();
   void hit_hull(int damage);
   void hit_part(int index, int damage);
   

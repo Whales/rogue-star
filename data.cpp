@@ -70,7 +70,7 @@ void define_parts()
 //              Name              HP  Mass  Cost Crew
   NEW_SP_WEAP   ("plasma cannon", 10,  60, 12000,  2,
 //  Sym  FG     Dam Rate Acc Range
-    '^', c_cyan,  2,  1,  0,  1000);
+    '^', c_cyan,  5,  1,  3,  1000);
 
 //              Name              HP  Mass  Cost Crew
   NEW_SP_ARMOR  ("armor plating", 50, 100,  8000,  0,

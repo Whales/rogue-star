@@ -19,6 +19,7 @@ int main()
   define_events();
   PLR.init();
 
+/*
   PLR.add_part(SP_PLATING);
   PLR.add_part(SP_PLATING);
   PLR.add_part(SP_PLATING);
@@ -36,6 +37,7 @@ int main()
   test.init();
 
   test.main_loop();
+*/
 
   main_screen();
 
